@@ -1,0 +1,53 @@
+sector|name|output|input|tier|version|reliance|comment||m0||b4:1|c3:3|c3:1|b4:3
+f10|pardef|void|int|0|v1|-|pre-define global run parameters
+f10|sizesort|void|size_t**,size_t|0|v1|-|sort *#1 size_t* array length #2 size_t by insertion sort ???????????????
+f10|sigset|void|int|0|v1|-|set #1 SIGNUM flag <SGX1> by func shx in .h ???????????????
+f10|sigset|void|int|0|v2|-|set #1 SIGNUM flag <SGX2> by func shx with <SGN2> in .h ????????????????
+f10|execactn|void|int*,char*,char**,pid_t*|0|v1|-|in *#4 process input #3 args execute #2 executable return *#1 status ?????????????????
+f10|syncproc|void|int*,pid_t*,size_t,size_t|0|v1|-|per #4 us wait for #3 number of #2 processes return *#1 status ????????????????
+f10|timdef|void|tim_t*,linux_tv,size_t|0|v1|-|extract *#1 tim_t from #2 linux timeval under #3 uscale
+f10|datdef|void|dat_t*,void*,size_t|0|v1|-|extract *#1 struct {*#2 pos, #3 bys} dat_t <SST0>=sizeof(size_t)
+f10|dattyp|void|size_t*,char*,size_t|0|v1|-|calc *#1 from #2 type in #3 libear category (failing *#1 = 0)
+f10|memdef|void|mem_t*,char*,size_t,size_t|0|v1|-|extract *#1 struct {*#2 mps, #3 bys, #4 rss} mem_t with float rate <RME0> index protection <MAX2> <MIN2>
+f10|pthdef|void|pth_t*|0|v1|-|extract *#1 pth_t {pth0stus,thd0ntot,thd0nidl,thd0nrmv,tsk0ncur,tsk0lfst,tsk0llst,pth1stat,tsk1list,tsk2lnch}, thd_l {thd,nxt}, tsk_l {fnc,arg,nxt} (failing #1->pth0stus = -1)
+f10|vtxdef|void|vtx_t*,vtx_p*,uint32_t|0|v1|-|extract *#1 vtx_t params from #2 vtx_p sequence of #3 class <SST1>=sizeof(size_t) <SIT1=sizeof(int)> <HSZ1>=64 <KYS00=128> <PGS00=65536> <NBR00> <NBR11> <PTAR0>
+f10|sizeband|void|size_t**,size_t**,size_t*,size_t*,size_t,size_t*,size_t|2|v1|f10sizesort0v1h|using f10sizesort to match in order seq #4(#5) and #6(#7) to index seq #1(#3) and #2(#3) (to free #1 and #2) ?????????????????????
+f10|timget|void|tim_t*,size_t*,size_t|2|v1|f10timdef0v1h|get *#1 tim_t and *#2 us count with gettimeofday() under #3 uscale ( if #1 = NULL only get *#2)
+f10|datapp|void|dat_t*,char*,size_t*|2|v1|f10datdef0v1h|dsk append #1 dat_t* (failing #1->pos = NULL) to #2 filename recording *#3 cursor size_t
+f10|datget|void|dat_t*,size_t,size_t,char*|2|v1|f10datdef0v1h|dsk get *#1 dat_t (failing #1->pos = NULL) from #2 bytes to #3 bytes in #4 filename
+f10|dathash|void|dat_t*,dat_t|2|v1|crypto2h,f10datdef0v1h|hash #2 dat_t to <HSZ0>=64-byte *#1 dat_t with SHA3512 (failing #1->pos = NULL)
+f10|dlsmrsss|void|void*,char*,char*,dat_t*|2|v1|f10datdef0v1h|sen_t: input #3 dim mode, #4->pos full rs seq / dat_plane (failing #4->pos = NULL) to execute #2 funcname in #1 dlhandles
+f10|meminit|void|mem_t*,char*,size_t|2|v1|f10memdef0v1h|mem init *#1 mem_t (failing #1->pos = NULL) from #2 /shmstring for #3 bytes
+f10|memocpy|void|mem_t*,dat_t*,size_t*|2|v1|f10datdef0v1h,f10memdef0v1h|mem occupy *#1 mem_t (failing #2->pos = NULL) to inject *#2 dat_t at *#3 size_t
+f10|memrels|void|mem_t*,dat_t*,size_t*|2|v1|f10datdef0v1h,f10memdef0v1h|mem in *#1 mem_t (failing #2->pos = NULL) release *#2 dat_t at *#3 size_t
+f10|memfina|void|mem_t*,char*,size_t|2|v1|f10memdef0v1h|mem unlink *#1 mem_t (failing #1->pos = NULL) from #2 /shmstring with #3 bytes
+f10|pthwork|void|pth_t*|2|v1|f10pthdef0v1h|the working function for threads in #1 thread pool
+f10|pthinit|void|mem_t*,sem_t*,dat_t*,size_t*|4|v1|f10pthdef0v1h,f10memocpy2v1h,f10memrels2v1h|in #1 mem_pl with #2 sem_pl initialize #3->pos(pth_t*) (failing #3->pos = NULL) at *#4 siz_pt
+f10|pthgrow|void|pth_t*,size_t*|4|v1|f10pthdef0v1h,f10pthwork2v1h|for #1 try to add #2 threads (degrading #1->pth0stus = 1/2 suffering malloc/pthread_create)
+f10|pthcurt|void|pth_t*,size_t*|4|v1|f10pthdef0v1h|for #1 place thread pool status to curtail *#2 threads
+f10|pthload|void|pth_t*,tfun_p,void*|4|v1|f10pthdef0v1h|for #1 try to load job from #2 func #3 args (failing #3 = NULL, degrading #1->pth0stus = 4 tasks full)
+f10|pthsync|void|pth_t*,size_t*|4|v1|f10pthdef0v1h|for #1 wait per #2 us for all threads to idle (doing #1->pth0stus = -2)
+f10|pthrebn|void|pth_t*,size_t*|4|v1|f10pthdef0v1h|for #1 wait per #2 us for all threads to exit then initialize to no thread (failing #1->pth0stus = -3)
+f10|pthfina|void|mem_t*,sem_t*,dat_t*,size_t*|4|v1|f10pthdef0v1h,f10memocpy2v1h,f10memrels2v1h|in #1 mem_pl with #2 sem_pl release #3->pos(pth_t*) (failing #3->pos = NULL) at *#4 siz_pt
+f10|vtxinit|void|mem_t*,sem_t*,dat_t*,size_t*,char*,char*,char*,char*,size_t|4|v1|f10vtxdef0v1h,f10dathash2v1h,f10memocpy2v1h,f10memrels2v1h|in #1 mem_pl with #2 sem_pl allocate *#3 dat_bt *#4 siz_bt open #5 .meta #6 .base update #3->fdm1/b1,stm1/b1,irs open #7 .meta #8 .base update #3->fdm2/b2,stm2/b2 specify #9 mode = 0,1,2
+f10|vtxload|void|mem_t*,sem_t*,bst_t*|4|v1|f10vtxdef0v1h,f10dathash2v1h,f10memocpy2v1h,f10memrels2v1h|in #1 mem_pl with #2 sem_pl allocate vtx_l and dtx_l doubly-linked list in #3 tree
+f10|vtxputs|void|mem_t*,sem_t*,bst_t*,vky_t*,dat_t*,size_t*|4|v1|f10vtxdef0v1h,f10memocpy2v1h,f10memrels2v1h|in #1 mem_pl with #2 sem_pl write #3 tree by insert (#4 key, #5->pos dat, #6 = 0, failing *#6 = 0, success *#6 = stdat) or adjust (#4 key, #5->pos dat, #6 > 0, failing *#6 = 0) or delete (#4 key, #5->pos = NULL)
+f10|vtxgets|void|mem_t*,sem_t*,bst_t*,vky_t*,dat_t*,size_t*|4|v1|f10vtxdef0v1h,f10memocpy2v1h,f10memrels2v1h|in #1 mem_pl with #2 sem_pl search #4 key allocate #5 dat_sh at #6 siz_sh (failing #5->pos = NULL, success to memrels(#1,#5,#6) under #2 )
+f10|vtxrebn|void|mem_t*,sem_t*,bst_t*|4|v1|f10vtxdef0v1h,f10memocpy2v1h,f10memrels2v1h|in #1 mem_pl lock #2 sem_pl to sort and trim at end the #3 .m1/2 meta and .b1/2 base files
+f10|vtxexhb|void|mem_t*,sem_t*,bst_t*|4|v1|f10vtxdef0v1h,f10memocpy2v1h,f10memrels2v1h|in #1 mem_pl with #2 sem_pl print #3 tree to stdout <VEX00>=4096
+f10|vtxdrop|void|mem_t*,sem_t*,bst_t*|4|v1|f10vtxdef0v1h,f10dathash2v1h,f10memocpy2v1h,f10memrels2v1h|in #1 mem_pl with #2 free vtx_l and dtx_l doubly-linked list in #3 tree
+f10|vtxfina|void|mem_t*,sem_t*,bst_t*|4|v1|f10vtxdef0v1h,f10memocpy2v1h,f10memrels2v1h|in #1 mem_pl with #2 sem_pl release #3 tree close m1/b1,m2/b2 files
+f10|rsssini|void|mem_t*,sem_t*,dat_t*,size_t*,dat_t*,size_t*,void*,dat_t,size_t*,size_t*,int8_t*,int8_t*|4|v1|f10dathash2v1h,f10dlsmrsss2v1h,f10memocpy2v1h,f10memrels2v1h|in #1 mem_pl with #2 sem_pl allocate *#3 dat_rs *#4 siz_rs *#5 dat_ri *#6 siz_ri (mem failing #3/#5->pos = NULL, set failing only *#9/*#10 = 0) inject dat_rsmeta and dat_rsdata extract from mfunc handle #7 and rs seq #8 to size *#9 bys_rs *#10 bys_ri *#11 syncctrl *#12 fillctrl
+f10|rsssexp|void|mem_t*,sem_t*,dat_t*,size_t*,dat_t*,size_t*,void*,dat_t,size_t*,size_t*,int8_t*,int8_t*|4|v1|f10datdef0v1h,f10memdef0v1h,f10dlsmrsss2v1h|in #1 mem_pl with #2 sem_pl using *#3 dat_rs *#4 siz_rs *#5 dat_ri *#6 siz_ri inject dat_rsdata from mfunc handle #7 and rs seq #8 update size *#9 bys_rs *#10 bys_ri (seg full *#12 = 0) *#11 syncctrl *#12 fillctrl
+f10|rsssobs|void|mem_t*,sem_t*,dat_t*,size_t*,dat_t*,size_t*,void*,dat_t,size_t*,size_t*,int8_t*,int8_t*|4|v1|f10datdef0v1h,f10memdef0v1h,f10dlsmrsss2v1h|in #1 mem_pl with #2 sem_pl using *#3 dat_rs *#4 siz_rs *#5 dat_ri *#6 siz_ri update dat_rsdata from mfunc handle #7 and rs seq #8 update size *#9 bys_rs *#10 bys_ri (seg full *#12 = 0) *#11 syncctrl *#12 fillctrl
+#./a5prep1v1.sh f10 rsssmgt void dat_t*,size_t*,dat_t*,size_t*,size_t,size_t*,dat_t**,dat_t** 4 v1 f10memdef0v1h,f10dathash2v1h & # interpret in-memory *#1 dat_rs *#2 bys_rs *#3 dat_ri *#4 bys_ri (failing *#6 = 0) by #5 length #6 j-array to *#7 dat_t*rs-array *#8 dat_t*ri-array pointers only
+#./a5prep1v1.sh f10 rsssdgt void mem_t*,sem_t*,dat_t*,size_t*,size_t,size_t*,char*,char* 4 v1 - & # in #1 mem_pl with #2 sem_pl to get only selected obs seqs *#3 dat_rs *#4 siz_rs *#5 dat_ri *#6 siz_ri (mem failing #3/#5->pos = NULL, dsk failing only *#9/*#10 = 0) from #7 rsname #8 riname extract *#9 bys_rs *#10 bys_ri
+f10|rssswrt|void|dat_t*,size_t*,dat_t*,size_t*,char*,char*|4|v1|f10datdef0v1h,f10memdef0v1h|writing *#1 dat_rs->pos *#2 bys_rs *#3 dat_ri->pos *#4 bys_ri to #5 rsname #6 riname
+f10|rsssfin|void|mem_t*,sem_t*,dat_t*,size_t*,dat_t*,size_t*|4|v1|f10memrels2v1h|in #1 mem_pl with #2 sem_pl free *#3 dat_rs *#4 siz_rs *#5 dat_ri *#6 siz_ri (failing #3/#5/->pos = NULL)
+f10|rssspre|void|mem_t*,sem_t*,dat_t*,size_t*,char*,char*,void**|4|v1|f10dlsmrsss2v1h,f10memocpy2v1h,f10memrels2v1h|in #1 mem_pl with #2 sem_pl allocate *#3 dat_rshd *#4 siz_rshd (failing #3->pos = NULL) from #5 S #6 A inputs yield *#7 mfunc handle <PML00=512> <DSK00=0.8> <FDR0="R10">
+f10|rsssyld|void|mem_t*,sem_t*,dat_t*,size_t*,void**|4|v1|f10dlsmrsss2v1h,f10memocpy2v1h,f10memrels2v1h|in #1 mem_pl with #2 sem_pl release *#3 dat_rshd *#4 siz_rshd dlclose *#5 mfunc handle
+f10|rssslum|void|mem_t*,sem_t*,dat_t*,void*,pth_t*,size_t,size_t*,int8_t*|6|v1|f10timdef0v1h,f10pthload4v1h,f10rsssini4v1h,f10rsssexp4v1h,f10rssswrt4v1h,f10rsssfin4v1h,f10rssspre4v1h|in #1 mem_pl with #2 sem_pl from #3 rs char seq via #4 mfunc handle on #5 pth_t per #6 us band with *#7 expected events per lumi (failing *#7 = 0) *#8 underclock (not synced *#8 = 2/4) finish wrt to /Jcur
+f10|rssskur|void|mem_t*,sem_t*,pth_t*,char*,char*,size_t,dat_t*,size_t*,dat_t*,size_t*,int8_t*|6|v1|f10timdef0v1h,f10pthload4v1h,f10rsssini4v1h,f10rsssobs4v1h,f10rssswrt4v1h,f10rsssfin4v1h,f10rssspre4v1h,f10rsssyld4v1h|in #1 mem_pl with #2 sem_pl on #3 pth_t from #4 S #5 A per #6 us band fill obs to *#7 dat_rs->pos *#8 bys_rs *#9 dat_ri->pos *#10 bys_ri (failing #7/#9->pos = NULL) *#11 underclock (not synced *#11 = 2/4) finish wrt to /0/cur
+#./a5prep1v1.sh f10 rssshlv void mem_t*,sem_t*,char*,char*,size_t*,char*,char*,char*,char* 6 v1 - & # using #1 mem_pl with #2 sem_pl to split #3 rsname #4 riname at *#5 j (failing *#5 = 0) to #6 rs1name #7 ri1name and #8 rs2name #9 ri2name
+#./a5prep1v1.sh f10 rssscbn void mem_t*,sem_t*,char*,char*,size_t*,char*,char*,char*,char* 6 v1 - & # using #1 mem_pl with #2 sem_pl to cat #3 rsname #4 riname at *#5 mode 1/2 (failing *#5 = 0) from #6 rs1name #7 ri1name and #8 rs2name #9 ri2name
+f10|rsssrun|void|mem_t*,sem_t*,pth_t*,char*,char*,size_t,size_t*,int8_t*|8|v1|f10rssspre4v1h,f10rsssyld4v1h,f10rssslum6v1h|in #1 mem_pl with #2 sem_pl on #3 pth_t from #4 S #5 A per #6 us band fill *#7 expected events per lumi from /0/Jcur to /Jcurs *#8 status (mem/disk failing *#8 = -1/-2)
