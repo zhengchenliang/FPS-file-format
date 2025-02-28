@@ -2,7 +2,7 @@
 
 # shc -f f1.sh -o f1 -H
 
-## fps a3func2build.sh m45.fps:0 m100.fps:0,1-4 m100.fps:5 m100.fps:6-8 m100.fps:0,10,12 m100.fps:-,13,14
+## fps a3func2build.sh m45.fps:0 m100.fps:0,1-4 m100.fps:5 m100.fps:6-8 m100.fps:0,10,12 m100.fps:-,13,14 m283.fps:-
 
 ### Func
 is_numeric() {
@@ -956,7 +956,9 @@ case "$1" in
       shift 1
       expand_range() { # "11-14" -> (11 12 13 14)
         term="$1"
-        if [[ "$term" == *-* ]]; then
+        if [[ "$term" == "-" ]]; then
+          echo "$term"
+        elif [[ "$term" == *-* ]]; then
           IFS='-' read -r start end <<< "$term"
           seq "$start" "$end"
         else
@@ -999,9 +1001,13 @@ case "$1" in
             done
           fi
         else # no comma in selector
-          for s in $( expand_range "$local_sel" ); do
-            fps_run_script "$local_script" "$local_fps" "$s" # 0 = then wait; - = mix run
-          done
+          if [[ -z "$local_sel" ]]; then
+            fps_run_script "$local_script" "$local_fps" ""
+          else
+            for s in $( expand_range "$local_sel" ); do
+              fps_run_script "$local_script" "$local_fps" "$s" # 0 = then wait; - = mix run
+            done
+          fi
         fi
       done
     else
@@ -1009,5 +1015,6 @@ case "$1" in
       exit 1
     fi
     [[ $fin0 -eq 1 ]] && wait
+    exit 0
     ;;
 esac
