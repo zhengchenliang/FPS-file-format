@@ -25,7 +25,7 @@
       }
     },
     "flatComplex_modules_1": {
-      "comp1": {
+      "#1": {
         "_run": {
           "1": {
             "dependencies": ["database", "reporting"],
@@ -37,7 +37,7 @@
       }
     },
     "flatComplex_modules_0": {
-      "comp0": {
+      "#0": {
         "_run": {
           "1": {
             "dependencies": ["auth", "logging"],
@@ -107,7 +107,7 @@
       }
     },
     "flatComplex_modules_1_config_locations_2": {
-      "comp2": {
+      "#2": {
         "_run": {
           "1": {
             "capacity": 500,
@@ -118,7 +118,7 @@
       }
     },
     "flatComplex_modules_1_config_locations_1": {
-      "comp1": {
+      "#1": {
         "_run": {
           "1": {
             "capacity": 2500,
@@ -129,7 +129,7 @@
       }
     },
     "flatComplex_modules_1_config_locations_0": {
-      "comp0": {
+      "#0": {
         "_run": {
           "1": {
             "capacity": 5000,
@@ -164,7 +164,7 @@
       }
     },
     "flatComplex_modules_1_permissions_2": {
-      "comp2": {
+      "#2": {
         "_run": {
           "1": {
             "access": "read-only",
@@ -174,7 +174,7 @@
       }
     },
     "flatComplex_modules_1_permissions_0": {
-      "comp0": {
+      "#0": {
         "_run": {
           "1": {
             "access": "full",
@@ -184,7 +184,7 @@
       }
     },
     "flatComplex_modules_1_permissions_1": {
-      "comp1": {
+      "#1": {
         "_run": {
           "1": {
             "access": "full",
@@ -194,7 +194,7 @@
       }
     },
     "flatComplex_modules_0_permissions_2": {
-      "comp2": {
+      "#2": {
         "_run": {
           "1": {
             "access": "read-only",
@@ -204,7 +204,7 @@
       }
     },
     "flatComplex_modules_0_permissions_1": {
-      "comp1": {
+      "#1": {
         "_run": {
           "1": {
             "access": "read-write",
@@ -214,7 +214,7 @@
       }
     },
     "flatComplex_modules_0_permissions_0": {
-      "comp0": {
+      "#0": {
         "_run": {
           "1": {
             "access": "full",

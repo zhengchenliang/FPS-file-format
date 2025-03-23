@@ -40,7 +40,7 @@
       }
     },
     "testComplex_level1_level2_level3_level4_array_0": {
-      "comp0": {
+      "#0": {
         "_run": {
           "1": {
             "id": "item1",
@@ -50,7 +50,7 @@
       }
     },
     "testComplex_level1_level2_level3_level4_array_1": {
-      "comp1": {
+      "#1": {
         "_run": {
           "1": {
             "id": "item2",
@@ -60,7 +60,7 @@
       }
     },
     "testComplex_level1_level2_level3_level4_array_2": {
-      "comp2": {
+      "#2": {
         "_run": {
           "1": {
             "id": "item3",

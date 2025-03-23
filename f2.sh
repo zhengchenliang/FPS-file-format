@@ -1527,7 +1527,7 @@ fps_flat() {
         element_header="${element_header%|}"
         element_body="${element_body%|}"
         # Write the element file
-        local element_id="comp${i}"
+        local element_id="#${i}"
         if [[ "$element_has_values" == "true" ]]; then
           echo "${element_header}||${element_id}||${element_backgrounds}" > "$element_fps"
           if [[ -n "$element_body" ]]; then

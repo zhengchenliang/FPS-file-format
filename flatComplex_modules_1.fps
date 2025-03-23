@@ -1,2 +1,2 @@
-dependencies|enabled|id|name||comp1||flatComplex_modules_1_config|flatComplex_modules_1_permissions
+dependencies|enabled|id|name||#1||flatComplex_modules_1_config|flatComplex_modules_1_permissions
 {database, reporting}|true|inventory|Inventory Management

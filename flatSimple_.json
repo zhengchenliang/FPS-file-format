@@ -52,7 +52,7 @@
       }
     },
     "flatSimple_components_0": {
-      "comp0": {
+      "#0": {
         "_run": {
           "1": {
             "id": "comp1",
@@ -62,7 +62,7 @@
       }
     },
     "flatSimple_components_1": {
-      "comp1": {
+      "#1": {
         "_run": {
           "1": {
             "id": "comp2",
