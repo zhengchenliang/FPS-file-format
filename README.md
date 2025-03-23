@@ -88,6 +88,11 @@ $ fps sift x.fps "Condition"
 ```
 Filters data rows based on a given condition (using simple comparison operators) and outputs a new FPS file with a hashed name.
 
+```bash
+$ fps sift x.fps "Condition" array
+```
+Returns a comma-separated list of row numbers that match the given condition, which is useful for condition-based run selectors.
+
 Sort Records:
 ```bash
 $ fps sort x.fps Key 1
@@ -136,12 +141,17 @@ Run External Scripts:
         A comma-separated list (e.g., 0,1-4 or -,13,14) where:
             The first term indicates parallel (0 or -) execution or sequential execution.
             Subsequent terms specify run numbers or ranges.
+        A condition-based expression (e.g., "name != 'test' && tier > 3") where:
+            Conditions use comparison operators (==, !=, >=, <=, >, <).
+            String values must be enclosed in single quotes.
+            Multiple conditions can be combined with logical operators (&&, ||).
+            Prefix with "0," for parallel execution with wait, or "-," for parallel execution without wait.
 
 Example
 
 The following command demonstrates various run selectors:
 
-$ fps a3func2build.sh m45.fps:0 m100.fps:0,1-4 m100.fps:5 m100.fps:6-8 m100.fps:0,10,12 m100.fps:-,13,14
+$ fps a3func2build.sh m45.fps:0 m100.fps:0,1-4 m100.fps:5 m100.fps:6-8 m100.fps:0,10,12 m100.fps:-,13,14 m100.fps:"tier > 4" m100.fps:0,"name == 'service'"
 
     m45.fps:0
     Executes all rows in parallel.
@@ -160,6 +170,12 @@ $ fps a3func2build.sh m45.fps:0 m100.fps:0,1-4 m100.fps:5 m100.fps:6-8 m100.fps:
 
     m100.fps:-,13,14
     Executes rows 13 and 14 in a mixed parallel mode.
+
+    m100.fps:"tier > 4"
+    Executes rows where the "tier" column value is greater than 4 sequentially.
+
+    m100.fps:0,"name == 'service'"
+    Executes rows where the "name" column equals 'service' in parallel, then waits for completion.
 
 FPS File Format Specification
 
@@ -210,6 +226,7 @@ The FPS tool comprises several functions, each tailored for a specific operation
 
     fps_sift:
     Filters the FPS file using conditions expressed in a simple comparison syntax (e.g., Key>=10). It outputs a new FPS file with a unique hash in the filename.
+    When called with an additional "array" parameter, it returns a comma-separated list of row numbers that match the condition, which is useful for condition-based run selection.
 
     fps_sort_key:
     Sorts the data in an FPS file by a given key in ascending or descending order, then outputs the sorted data to a new file.
@@ -242,6 +259,8 @@ The FPS tool comprises several functions, each tailored for a specific operation
         Single run numbers (e.g., 5).
         Ranges (e.g., 6-8), which are expanded using seq.
         Comma-separated selectors for sequential or parallel execution, based on the first term.
+        Condition-based selectors (e.g., "field1 == 'value' && field2 > 10") that dynamically select rows based on column values.
+        Parallel execution modes for condition-based selectors by prefixing with "0," (parallel with wait) or "-," (parallel without wait).
 
 ## JSON/FPS Conversion Examples
 

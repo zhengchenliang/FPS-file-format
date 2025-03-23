@@ -432,6 +432,7 @@ fps_find() {
 fps_sift() {
   local file="$1"
   local filterString="$2"
+  local outputMode="${3:-file}" # Default to file output, can be "array" for row numbers
   if [[ ! -f "$file" ]]; then
     echo "$0: '$file' not found."
     exit 1
@@ -553,22 +554,42 @@ fps_sift() {
     local regex_safe_name=$(echo "$name" | sed 's/[]\/$*.^[]/\\&/g')
     awkExpr=$(echo "$awkExpr" | sed "s/\b${regex_safe_name}\b/${field_ref}/g")
   done
-  # create sift output
-  local hash0=$(echo -n "$awkExpr" | sha1sum | awk '{print substr($1,1,16)}')
-  local outFile="${file%.fps}#${hash0}.fps"
-  echo "$h0" > "$outFile"
-  # awk condition go
-  awk -F '|' '
-    NR==1 { next } # skip header
-    {
-      if( '"$awkExpr"' )
-        print
-    }
-  ' "$file" >> "$outFile"
-  local siftCount=$(tail -n +2 "$outFile" | wc -l)
-  echo "$0: With '$filterString'"
-  echo "$0: i.e. '$awkExpr'"
-  echo "$0: Sifted '$file' to '$outFile' #= $siftCount"
+  # Handle different output modes
+  if [[ "$outputMode" == "array" ]]; then
+    # Return comma-separated list of row numbers that match the condition
+    local matching_rows=$(awk -F '|' -v awkExpr="$awkExpr" '
+      BEGIN { first = 1 }
+      NR==1 { next } # skip header
+      {
+        if('"$awkExpr"') {
+          if (first) {
+            printf("%d", NR-1);
+            first = 0;
+          } else {
+            printf(",%d", NR-1);
+          }
+        }
+      }
+    ' "$file")
+    echo "$matching_rows"
+  else
+    # Default file output mode
+    local hash0=$(echo -n "$awkExpr" | sha1sum | awk '{print substr($1,1,16)}')
+    local outFile="${file%.fps}#${hash0}.fps"
+    echo "$h0" > "$outFile"
+    # awk condition go
+    awk -F '|' '
+      NR==1 { next } # skip header
+      {
+        if('"$awkExpr"')
+          print
+      }
+    ' "$file" >> "$outFile"
+    local siftCount=$(tail -n +2 "$outFile" | wc -l)
+    echo "$0: With '$filterString'"
+    echo "$0: i.e. '$awkExpr'"
+    echo "$0: Sifted '$file' to '$outFile' #= $siftCount"
+  fi
 }
 
 fps_sort_key() {
@@ -1631,13 +1652,14 @@ if [[ $# -lt 1 ]]; then
   echo "$0 draw x.fps                           # draw align -> @.fps"
   echo "$0 norm x.fps                           # normalize -> prere.fps"
   echo "$0 stat x.fps Key                       # show stat of a key -> @.stat"
+  echo "$0 json x.fps                           # convert fps to json -> .json"
+  echo "$0 flat x.json                          # convert json to fps -> _.fps"
   echo "$0 find x.fps Word                      # search for a word in prere/chart"
   echo "$0 sift x.fps Condition                 # sift with condition -> #hash.fps"
   echo "$0 sort x.fps Key 1/+ or 2/-            # sort key ascend/descend -> @.fps"
   echo "$0 merge out0.fps in1.fps ...           # merge same key set and normalize"
-  echo "$0 json x.fps                           # convert fps to json -> .json"
-  echo "$0 flat x.json                          # convert json to fps -> _.fps"
-  echo "$0 ELF/.sh/.py x.fps[:0=pll|:N=run] ... # run script with ordered variable"
+  echo "$0 ELF/.sh/.py x.fps[:0=pll|:N=run] ... # run script with environment vars"
+  echo "$0 ELF/.sh/.py x.fps:-,"a > 2"          # run script with condition sifter"
   exit 0
 fi
 
@@ -1706,6 +1728,15 @@ case "$1" in
     ;;
   *) # run $1 a ELF or .sh or .py script
     [[ $# -lt 2 ]] && { echo "$0: run requires >= 2 args for ELF/.sh/.py x.fps[:0=pll|:N=run] ..."; exit 1; }
+    # Usage information for run modes:
+    # 1. Simple run: script.sh file.fps                                     - Run sequentially all rows
+    # 2. Single run: script.sh file.fps:5                                   - Run only row #5
+    # 3. Multiple runs: script.sh file.fps:1,3,5-7                          - Run rows 1,3,5,6,7 sequentially
+    # 4. Parallel run: script.sh file.fps:0,1,3,5-7                         - Run rows 1,3,5,6,7 in parallel, wait for all to finish
+    # 5. Parallel mix: script.sh file.fps:-,1,3,5-7                         - Run rows 1,3,5,6,7 in parallel, continue without waiting
+    # 6. Condition-based: script.sh file.fps:"version == '1.0' && tier > 2" - Run rows matching the condition sequentially
+    # 7. Parallel condition: script.sh file.fps:0,"version == '1.0'"        - Run matching rows in parallel, wait for all
+    # 8. Parallel mix condition: script.sh file.fps:-,"version == '1.0'"    - Run matching rows in parallel, continue without waiting
     fin0=0
     exe0=0
     if [[ -x "$1" ]] && file "$1" | grep -q "ELF"; then
@@ -1739,8 +1770,43 @@ case "$1" in
         fi
         [[ ! -f "$local_fps" ]] && { echo "$0: Info '$local_fps' not accessed."; continue; }
         [[ "$local_fps" != *.fps ]] && { echo "$0: Info '$local_fps' not .fps file."; continue; }
-        # comma in selector
-        if [[ "$local_sel" == *","* ]]; then
+        # condition-based selector
+        if [[ "$local_sel" =~ (==|!=|>=|<=|>|<) ]]; then
+          echo "$0: Processing condition-based selector: $local_sel"
+          local_parallel_mode=""
+          if [[ "$local_sel" == "0,"* ]]; then
+            local_parallel_mode="wait"
+            local_sel="${local_sel#0,}"
+            echo "$0: Using parallel execution with wait"
+          elif [[ "$local_sel" == "-,"* ]]; then
+            local_parallel_mode="mix"
+            local_sel="${local_sel#-,}"
+            echo "$0: Using parallel execution without wait"
+          fi
+          local_matching_runs=$(fps_sift "$local_fps" "$local_sel" "array")
+          if [[ -z "$local_matching_runs" ]]; then
+            echo "$0: No runs match the condition: $local_sel"
+            continue
+          fi
+          echo "$0: Matched runs: $local_matching_runs"
+          IFS=',' read -ra sel_arr <<< "$local_matching_runs"
+          if [[ "$local_parallel_mode" == "wait" ]]; then # parallel then wait
+            for s in "${sel_arr[@]}"; do
+              fps_run_script "$local_script" "$local_fps" "$s" &
+            done
+            wait
+          elif [[ "$local_parallel_mode" == "mix" ]]; then # parallel mix run
+            for s in "${sel_arr[@]}"; do
+              fps_run_script "$local_script" "$local_fps" "$s" &
+            done
+            fin0=1
+          else # sequential
+            for s in "${sel_arr[@]}"; do
+              fps_run_script "$local_script" "$local_fps" "$s"
+            done
+          fi
+        # comma in selector for explicit run numbers or special modes
+        elif [[ "$local_sel" == *","* ]]; then
           IFS=',' read -ra sel_arr <<< "$local_sel"
           if [[ "${sel_arr[0]}" == "0" ]]; then # parallel then wait
             for term in "${sel_arr[@]:1}"; do
@@ -1763,7 +1829,8 @@ case "$1" in
               done
             done
           fi
-        else # no comma in selector
+        # no comma in selector
+        else
           if [[ -z "$local_sel" ]]; then
             fps_run_script "$local_script" "$local_fps" ""
           else
