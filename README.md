@@ -104,13 +104,27 @@ Convert FPS to JSON:
 ```bash
 $ fps json x.fps
 ```
-Converts an FPS file to a structured JSON format, preserving all data, background references, and nested relationships. The output is saved with a `.json` extension.
+Converts an FPS file to a structured JSON format, preserving the hierarchy and relationships:
+- Chart data is mapped to a `_chart` section with `_set`, `_key`, and `_run` properties.
+- Background references are mapped to a `_backg` section with nested structures.
+- Handles void-body files (files starting with "-||" that only serve as references to other files).
+- Processes the complete reference chain even when intermediate files have no direct values.
+- Automatically handles arrays, nested objects, and primitive data types.
+- Properly formats numeric and string values according to JSON standards.
 
 Convert JSON to FPS:
 ```bash
 $ fps flat x.json
 ```
-Converts a JSON file back to the FPS format, creating a main FPS file (with `_.fps` extension) and potentially multiple supporting FPS files for nested structures.
+Converts a JSON file back to the FPS format:
+- Creates a main FPS file with a `_.fps` extension.
+- Generates additional FPS files for nested objects and arrays.
+- For arrays, creates individual element files (with numeric suffixes) and a container file.
+- For nested objects, creates separate FPS files with appropriate naming conventions.
+- For objects without direct properties but with nested structures, creates void-body files (starting with "-||").
+- Maintains relationships through background references.
+- Handles arrays, nested objects, and primitive values appropriately.
+- Preserves the complete data structure and relationships from the JSON.
 
 Run External Scripts:
 
@@ -207,6 +221,8 @@ The FPS tool comprises several functions, each tailored for a specific operation
     Converts an FPS file to a structured JSON format, preserving the hierarchy and relationships:
     - Chart data is mapped to a `_chart` section with `_set`, `_key`, and `_run` properties.
     - Background references are mapped to a `_backg` section with nested structures.
+    - Handles void-body files (files starting with "-||" that only serve as references to other files).
+    - Processes the complete reference chain even when intermediate files have no direct values.
     - Automatically handles arrays, nested objects, and primitive data types.
     - Properly formats numeric and string values according to JSON standards.
     
@@ -214,6 +230,9 @@ The FPS tool comprises several functions, each tailored for a specific operation
     Converts a JSON file back to the FPS format:
     - Creates a main FPS file with a `_.fps` extension.
     - Generates additional FPS files for nested objects and arrays.
+    - For arrays, creates individual element files (with numeric suffixes) and a container file.
+    - For nested objects, creates separate FPS files with appropriate naming conventions.
+    - For objects without direct properties but with nested structures, creates void-body files (starting with "-||").
     - Maintains relationships through background references.
     - Handles arrays, nested objects, and primitive values appropriately.
     - Preserves the complete data structure and relationships from the JSON.
@@ -228,18 +247,37 @@ The FPS tool comprises several functions, each tailored for a specific operation
 
 ### Converting FPS to JSON
 
-Starting with a simple FPS file structure:
+Starting with a more complex FPS file structure with nested references:
 
 ```
-Key1|Key2|Key3||prere||bg1.fps:1|bg2.fps:2
-value1|value2|value3
-value4|value5|value6
+# Main file: main_.fps
+name|version||main||main_components
+Enterprise App|1.0.0
+
+# Components container: main_components.fps
+-||components||main_components_0|main_components_1
+
+# Component 0: main_components_0.fps
+id|type||comp0||main_components_0_config
+service1|service
+
+# Component 0 config: main_components_0_config.fps
+port|host||config||
+8080|localhost
+
+# Component 1: main_components_1.fps
+id|type||comp1||main_components_1_config
+database1|database
+
+# Component 1 config: main_components_1_config.fps
+collections|url||config||
+{users, products}|mongodb://localhost:27017
 ```
 
 Converting to JSON with:
 
 ```bash
-$ fps json simple.fps
+$ fps json main_.fps
 ```
 
 Produces a structured JSON like:
@@ -247,36 +285,59 @@ Produces a structured JSON like:
 ```json
 {
   "_chart": {
-    "_set": "simple",
-    "_key": "prere",
+    "_set": "main_",
+    "_key": "main",
     "_run": {
       "1": {
-        "Key1": "value1",
-        "Key2": "value2",
-        "Key3": "value3"
-      },
-      "2": {
-        "Key1": "value4",
-        "Key2": "value5",
-        "Key3": "value6"
+        "name": "Enterprise App",
+        "version": "1.0.0"
       }
     }
   },
   "_backg": {
-    "bg1": {
-      "prere": {
+    "main_components": {
+      "components": {
+        "_run": {
+          "1": {}
+        }
+      }
+    },
+    "main_components_0": {
+      "comp0": {
         "_run": {
           "1": {
-            // bg1 run 1 data
+            "id": "service1",
+            "type": "service"
           }
         }
       }
     },
-    "bg2": {
-      "prere": {
+    "main_components_0_config": {
+      "config": {
         "_run": {
-          "2": {
-            // bg2 run 2 data
+          "1": {
+            "port": 8080,
+            "host": "localhost"
+          }
+        }
+      }
+    },
+    "main_components_1": {
+      "comp1": {
+        "_run": {
+          "1": {
+            "id": "database1",
+            "type": "database"
+          }
+        }
+      }
+    },
+    "main_components_1_config": {
+      "config": {
+        "_run": {
+          "1": {
+            "collections": ["users", "products"],
+            "url": "mongodb://localhost:27017"
           }
         }
       }
@@ -285,53 +346,98 @@ Produces a structured JSON like:
 }
 ```
 
-### Converting JSON to FPS
-
-Starting with a JSON file:
+Which would then be translated to a standard JSON (without the _chart and _backg sections):
 
 ```json
 {
-  "metadata": {
-    "author": "John Doe",
-    "version": 1.2
-  },
-  "settings": {
-    "timeout": 300
-  },
+  "name": "Enterprise App",
+  "version": "1.0.0",
   "components": [
     {
-      "name": "component1",
-      "active": true,
+      "id": "service1",
+      "type": "service",
       "config": {
-        "port": 8080
+        "port": 8080,
+        "host": "localhost"
       }
     },
     {
-      "name": "component2",
-      "active": false,
+      "id": "database1",
+      "type": "database",
       "config": {
-        "port": 9000
+        "collections": ["users", "products"],
+        "url": "mongodb://localhost:27017"
       }
     }
   ]
 }
 ```
 
-Converting back to FPS:
+### Converting JSON to FPS
 
-```bash
-$ fps flat complex.json
+Starting with a deeply nested JSON file:
+
+```json
+{
+  "name": "Test Deep Nesting",
+  "level1": {
+    "level2": {
+      "level3": {
+        "level4": {
+          "array": [
+            {"id": "item1", "value": 1},
+            {"id": "item2", "value": 2},
+            {"id": "item3", "value": 3}
+          ]
+        }
+      }
+    }
+  }
+}
 ```
 
-Creates multiple FPS files:
-- `complex_.fps` (main file with references)
-- `complex_metadata.fps` 
-- `complex_settings.fps`
-- `complex_components.fps`
-- `complex_components_0.fps`, `complex_components_1.fps` 
-- `complex_components_0_config.fps`, `complex_components_1_config.fps`
+Converting to FPS:
 
-These files maintain all the relationships and data structure of the original JSON.
+```bash
+$ fps flat deep.json
+```
+
+Creates multiple FPS files with proper void-body references:
+
+```
+# Main file: deep_.fps
+name||deep||deep_level1
+Test Deep Nesting
+
+# Level1 (void-body): deep_level1.fps
+-||level1||deep_level1_level2
+
+# Level2 (void-body): deep_level1_level2.fps
+-||level2||deep_level1_level2_level3
+
+# Level3 (void-body): deep_level1_level2_level3.fps
+-||level3||deep_level1_level2_level3_level4
+
+# Level4 (void-body): deep_level1_level2_level3_level4.fps
+-||level4||deep_level1_level2_level3_level4_array
+
+# Array container: deep_level1_level2_level3_level4_array.fps
+-||array||deep_level1_level2_level3_level4_array_0|deep_level1_level2_level3_level4_array_1|deep_level1_level2_level3_level4_array_2
+
+# Array element 0: deep_level1_level2_level3_level4_array_0.fps
+id|value||comp0||
+item1|1
+
+# Array element 1: deep_level1_level2_level3_level4_array_1.fps
+id|value||comp1||
+item2|2
+
+# Array element 2: deep_level1_level2_level3_level4_array_2.fps
+id|value||comp2||
+item3|3
+```
+
+When converting back to JSON with `fps json deep_.fps`, all nested structures and array elements are correctly reconstructed into the original structure.
 
 Contributing
 
