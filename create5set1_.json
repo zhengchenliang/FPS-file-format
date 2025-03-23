@@ -1,0 +1,91 @@
+{
+  "_chart": {
+    "_set": "create5set1_",
+    "_key": "create5set1",
+    "_run": {
+
+    }
+  },
+  "_backg": {
+    "create5set1__chart__run": {
+      "_run": {
+        "_run": {
+        }
+      }
+    },
+    "create5set1__chart": {
+      "_chart": {
+        "_run": {
+          "1": {
+            "_key": "create5",
+            "_set": "create5set1"
+          }
+        }
+      }
+    },
+    "create5set1__chart__run_2": {
+      "2": {
+        "_run": {
+          "1": {
+            "array": "1{100=?,200=?} 5{100=?,200=?}",
+            "excite": "-",
+            "kmf": "1<rat>0 5<rat>0 15<rat>0 60<rat> 240<rat> 1440<rat>",
+            "name": "Q0000",
+            "ops": 16,
+            "params": "v0VL0=true v0LA0=false v0FC0=false v0TM0=0 v0CD1=7.0 v5CX0=4:2:12 v6RS0=1.0 v6LM0=1.0 w1=0.0:0.5:1.0",
+            "path": "1{b1mkt=?,b1lmt=?,b1sl=?,b1tp=?,b1in=?,s1mkt=?,s1lmt=?,s1sl=?,s1tp=?,s1in=?} 2{b1mkt=?,b1lmt=?,b1sl=?,b1tp=?,b1in=?,s1mkt=?,s1lmt=?,s1sl=?,s1tp=?,s1in=?}",
+            "type": "test"
+          }
+        }
+      }
+    },
+    "create5set1__chart__run_5": {
+      "5": {
+        "_run": {
+          "1": {
+            "array": "1{100=?,200=?} 5{100=?,200=?}",
+            "excite": "1-0{?} 5-0{?} 15-0{?} 60-0{?} 240-0{?}",
+            "kmf": "1<tim,frc,rat>0 5<frc,rat>0 15<frc,rat>0 60<rat>0 240<rat>0 1440<rat>",
+            "name": "Q0237",
+            "ops": 20,
+            "params": "v0VL0=true v0LA0=false v0FC0=false v0TM0=0 v0CD1=7.0 v5CX0=0 v6RS0=1.0 v6LM0=1.0 w1=0.5",
+            "path": "1{b1mkt=?,b1lmt=?,b1sl=?,b1tp=?,b1in=?,s1mkt=?,s1lmt=?,s1sl=?,s1tp=?,s1in=?} 2{b1mkt=?,b1lmt=?,b1sl=?,b1tp=?,b1in=?,s1mkt=?,s1lmt=?,s1sl=?,s1tp=?,s1in=?}",
+            "type": "test"
+          }
+        }
+      }
+    },
+    "create5set1__chart__run_4": {
+      "4": {
+        "_run": {
+          "1": {
+            "array": "1{100=?,200=?} 5{100=?,200=?}",
+            "excite": "1-0{?} 1-1{?} 5-1{?}",
+            "kmf": "1<tim,frc,rat>0,1 5<>1 15<> 60<> 240<> 1440<>",
+            "name": "Q0123",
+            "ops": 20,
+            "params": "v0VL0=true v0LA0=false v0FC0=false v0TM0=0 v0CD1=7.0 v5CX0=4:2:12 v6RS0=1.0 v6LM0=1.0 w1=0.0:0.5:1.0",
+            "path": "1{b1mkt=?,b1lmt=?,b1sl=?,b1tp=?,b1in=?,s1mkt=?,s1lmt=?,s1sl=?,s1tp=?,s1in=?} 2{b1mkt=?,b1lmt=?,b1sl=?,b1tp=?,b1in=?,s1mkt=?,s1lmt=?,s1sl=?,s1tp=?,s1in=?}",
+            "type": "test"
+          }
+        }
+      }
+    },
+    "create5set1__chart__run_6": {
+      "6": {
+        "_run": {
+          "1": {
+            "array": "1{100=?,200=?} 5{100=?,200=?}",
+            "excite": "1-0{?} 5-0{?} 15-0{?} 60-0{?} 240-0{?}",
+            "kmf": "1<tim,frc,rat>0 5<frc,rat>0 15<frc,rat>0 60<rat>0 240<rat>0 1440<rat>",
+            "name": "Q1237",
+            "ops": 20,
+            "params": "v0VL0=true v0LA0=false v0FC0=false v0TM0=0 v0CD1=7.0 v5SX0=\"1,2,3,6,8,13\" v6RS0=1.0 v6LM0=1.0 w1=0.5",
+            "path": "1{b1mkt=?,b1lmt=?,b1sl=?,b1tp=?,b1in=?,s1mkt=?,s1lmt=?,s1sl=?,s1tp=?,s1in=?} 2{b1mkt=?,b1lmt=?,b1sl=?,b1tp=?,b1in=?,s1mkt=?,s1lmt=?,s1sl=?,s1tp=?,s1in=?}",
+            "type": "prod"
+          }
+        }
+      }
+    }
+  }
+}

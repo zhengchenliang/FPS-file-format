@@ -1,0 +1,43 @@
+{
+  "_chart": {
+    "_set": "c3file",
+    "_key": "c3",
+    "_run": {
+      "1": {
+        "Direction": "north"
+      },
+      "2": {
+        "Direction": "east"
+      },
+      "3": {
+        "Direction": "south"
+      },
+      "4": {
+        "Direction": "west"
+      }
+    }
+  },
+  "_backg": {
+    "c3file": {
+      "c3": {
+        "_run": {
+          "1": {
+            "Direction": "north"
+          },
+          "3": {
+            "Direction": "south"
+          }
+        }
+      }
+    },
+    "b4": {
+      "b4": {
+        "_run": {
+          "1": {
+            "Section": "zone"
+          }
+        }
+      }
+    }
+  }
+}

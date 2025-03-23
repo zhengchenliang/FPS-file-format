@@ -1,0 +1,73 @@
+{
+  "application": {
+    "name": "Enterprise Resource System",
+    "version": "4.2.1",
+    "release_date": "2023-08-15",
+    "is_stable": true
+  },
+  "configuration": {
+    "database": {
+      "host": "db.example.com",
+      "port": 5432,
+      "credentials": {
+        "username": "app_user",
+        "password_encrypted": "********"
+      },
+      "connection_pool": 25,
+      "timeout_seconds": 30
+    },
+    "cache": {
+      "enabled": true,
+      "ttl_seconds": 600,
+      "max_size_mb": 256
+    }
+  },
+  "modules": [
+    {
+      "id": "user_mgmt",
+      "name": "User Management",
+      "enabled": true,
+      "permissions": [
+        {"role": "admin", "access": "full"},
+        {"role": "manager", "access": "read-write"},
+        {"role": "user", "access": "read-only"}
+      ],
+      "dependencies": ["auth", "logging"],
+      "config": {
+        "max_users": 10000,
+        "password_policy": {
+          "min_length": 8,
+          "require_special_chars": true,
+          "require_numbers": true
+        }
+      }
+    },
+    {
+      "id": "inventory",
+      "name": "Inventory Management",
+      "enabled": true,
+      "permissions": [
+        {"role": "admin", "access": "full"},
+        {"role": "inventory_manager", "access": "full"},
+        {"role": "sales", "access": "read-only"}
+      ],
+      "dependencies": ["database", "reporting"],
+      "config": {
+        "low_stock_threshold": 10,
+        "auto_reorder": true,
+        "locations": [
+          {"id": "warehouse_a", "name": "Main Warehouse", "capacity": 5000},
+          {"id": "warehouse_b", "name": "Secondary Warehouse", "capacity": 2500},
+          {"id": "retail_1", "name": "Retail Store 1", "capacity": 500}
+        ]
+      }
+    }
+  ],
+  "system_metrics": {
+    "uptime_days": 124.5,
+    "average_load": 0.75,
+    "memory_usage_percent": 68.2,
+    "active_users": 843,
+    "historical_load": [0.65, 0.70, 0.68, 0.72, 0.75, 0.80, 0.78]
+  }
+} 

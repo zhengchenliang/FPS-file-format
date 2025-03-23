@@ -1,4 +1,4 @@
-sector|name|output|input|tier|version|reliance|comment||m0||b4:1|c3:3|c3:1|b4:3
+sector|name|output|input|tier|version|reliance|comment||m0||b4:1|c3file:3|c3file:1|b4:3|b0:0
 f10|pardef|void|int|0|v1|-|pre-define global run parameters
 f10|sizesort|void|size_t**,size_t|0|v1|-|sort *#1 size_t* array length #2 size_t by insertion sort ???????????????
 f10|sigset|void|int|0|v1|-|set #1 SIGNUM flag <SGX1> by func shx in .h ???????????????

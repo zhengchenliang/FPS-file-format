@@ -1,0 +1,73 @@
+{
+  "_chart": {
+    "_set": "testComplex_",
+    "_key": "testComplex",
+    "_run": {
+      "1": {
+        "name": "Test Deep Nesting"
+      }
+    }
+  },
+  "_backg": {
+    "testComplex_level1_level2_level3_level4": {
+      "level4": {
+        "_run": {
+        }
+      }
+    },
+    "testComplex_level1_level2_level3": {
+      "level3": {
+        "_run": {
+        }
+      }
+    },
+    "testComplex_level1": {
+      "level1": {
+        "_run": {
+        }
+      }
+    },
+    "testComplex_level1_level2_level3_level4_array": {
+      "array": {
+        "_run": {
+        }
+      }
+    },
+    "testComplex_level1_level2": {
+      "level2": {
+        "_run": {
+        }
+      }
+    },
+    "testComplex_level1_level2_level3_level4_array_0": {
+      "comp0": {
+        "_run": {
+          "1": {
+            "id": "item1",
+            "value": 1
+          }
+        }
+      }
+    },
+    "testComplex_level1_level2_level3_level4_array_1": {
+      "comp1": {
+        "_run": {
+          "1": {
+            "id": "item2",
+            "value": 2
+          }
+        }
+      }
+    },
+    "testComplex_level1_level2_level3_level4_array_2": {
+      "comp2": {
+        "_run": {
+          "1": {
+            "id": "item3",
+            "value": 3
+          }
+        }
+      }
+    }
+  }
+}

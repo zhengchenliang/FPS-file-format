@@ -1,0 +1,2 @@
+array|excite|kmf|name|ops|params|path|type||5||
+1{100=?,200=?} 5{100=?,200=?}|1-0{?} 5-0{?} 15-0{?} 60-0{?} 240-0{?}|1<tim,frc,rat>0 5<frc,rat>0 15<frc,rat>0 60<rat>0 240<rat>0 1440<rat>|Q0237|20|v0VL0=true v0LA0=false v0FC0=false v0TM0=0 v0CD1=7.0 v5CX0=0 v6RS0=1.0 v6LM0=1.0 w1=0.5|1{b1mkt=?,b1lmt=?,b1sl=?,b1tp=?,b1in=?,s1mkt=?,s1lmt=?,s1sl=?,s1tp=?,s1in=?} 2{b1mkt=?,b1lmt=?,b1sl=?,b1tp=?,b1in=?,s1mkt=?,s1lmt=?,s1sl=?,s1tp=?,s1in=?}|test

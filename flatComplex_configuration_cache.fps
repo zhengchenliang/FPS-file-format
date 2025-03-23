@@ -1,0 +1,2 @@
+enabled|max_size_mb|ttl_seconds||cache||
+true|256|600

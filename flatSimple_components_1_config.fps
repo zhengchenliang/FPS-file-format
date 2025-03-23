@@ -1,0 +1,2 @@
+collections|url||config||
+{users, products}|mongodb://localhost:27017

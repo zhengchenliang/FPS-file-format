@@ -1,0 +1,2 @@
+dependencies|enabled|id|name||comp0||flatComplex_modules_0_config|flatComplex_modules_0_permissions
+{auth, logging}|true|user_mgmt|User Management

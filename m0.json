@@ -1,0 +1,529 @@
+{
+  "_chart": {
+    "_set": "m0",
+    "_key": "m0",
+    "_run": {
+      "1": {
+        "sector": "f10",
+        "name": "pardef",
+        "output": "void",
+        "input": "int",
+        "tier": 0,
+        "version": "v1",
+        "reliance": "-",
+        "comment": "pre-define global run parameters"
+      },
+      "2": {
+        "sector": "f10",
+        "name": "sizesort",
+        "output": "void",
+        "input": "size_t**,size_t",
+        "tier": 0,
+        "version": "v1",
+        "reliance": "-",
+        "comment": "sort *#1 size_t* array length #2 size_t by insertion sort ???????????????"
+      },
+      "3": {
+        "sector": "f10",
+        "name": "sigset",
+        "output": "void",
+        "input": "int",
+        "tier": 0,
+        "version": "v1",
+        "reliance": "-",
+        "comment": "set #1 SIGNUM flag <SGX1> by func shx in .h ???????????????"
+      },
+      "4": {
+        "sector": "f10",
+        "name": "sigset",
+        "output": "void",
+        "input": "int",
+        "tier": 0,
+        "version": "v2",
+        "reliance": "-",
+        "comment": "set #1 SIGNUM flag <SGX2> by func shx with <SGN2> in .h ????????????????"
+      },
+      "5": {
+        "sector": "f10",
+        "name": "execactn",
+        "output": "void",
+        "input": "int*,char*,char**,pid_t*",
+        "tier": 0,
+        "version": "v1",
+        "reliance": "-",
+        "comment": "in *#4 process input #3 args execute #2 executable return *#1 status ?????????????????"
+      },
+      "6": {
+        "sector": "f10",
+        "name": "syncproc",
+        "output": "void",
+        "input": "int*,pid_t*,size_t,size_t",
+        "tier": 0,
+        "version": "v1",
+        "reliance": "-",
+        "comment": "per #4 us wait for #3 number of #2 processes return *#1 status ????????????????"
+      },
+      "7": {
+        "sector": "f10",
+        "name": "timdef",
+        "output": "void",
+        "input": "tim_t*,linux_tv,size_t",
+        "tier": 0,
+        "version": "v1",
+        "reliance": "-",
+        "comment": "extract *#1 tim_t from #2 linux timeval under #3 uscale"
+      },
+      "8": {
+        "sector": "f10",
+        "name": "datdef",
+        "output": "void",
+        "input": "dat_t*,void*,size_t",
+        "tier": 0,
+        "version": "v1",
+        "reliance": "-",
+        "comment": "extract *#1 struct {*#2 pos, #3 bys} dat_t <SST0>=sizeof(size_t)"
+      },
+      "9": {
+        "sector": "f10",
+        "name": "dattyp",
+        "output": "void",
+        "input": "size_t*,char*,size_t",
+        "tier": 0,
+        "version": "v1",
+        "reliance": "-",
+        "comment": "calc *#1 from #2 type in #3 libear category (failing *#1 = 0)"
+      },
+      "10": {
+        "sector": "f10",
+        "name": "memdef",
+        "output": "void",
+        "input": "mem_t*,char*,size_t,size_t",
+        "tier": 0,
+        "version": "v1",
+        "reliance": "-",
+        "comment": "extract *#1 struct {*#2 mps, #3 bys, #4 rss} mem_t with float rate <RME0> index protection <MAX2> <MIN2>"
+      },
+      "11": {
+        "sector": "f10",
+        "name": "pthdef",
+        "output": "void",
+        "input": "pth_t*",
+        "tier": 0,
+        "version": "v1",
+        "reliance": "-",
+        "comment": "extract *#1 pth_t {pth0stus,thd0ntot,thd0nidl,thd0nrmv,tsk0ncur,tsk0lfst,tsk0llst,pth1stat,tsk1list,tsk2lnch}, thd_l {thd,nxt}, tsk_l {fnc,arg,nxt} (failing #1->pth0stus = -1)"
+      },
+      "12": {
+        "sector": "f10",
+        "name": "vtxdef",
+        "output": "void",
+        "input": "vtx_t*,vtx_p*,uint32_t",
+        "tier": 0,
+        "version": "v1",
+        "reliance": "-",
+        "comment": "extract *#1 vtx_t params from #2 vtx_p sequence of #3 class <SST1>=sizeof(size_t) <SIT1=sizeof(int)> <HSZ1>=64 <KYS00=128> <PGS00=65536> <NBR00> <NBR11> <PTAR0>"
+      },
+      "13": {
+        "sector": "f10",
+        "name": "sizeband",
+        "output": "void",
+        "input": "size_t**,size_t**,size_t*,size_t*,size_t,size_t*,size_t",
+        "tier": 2,
+        "version": "v1",
+        "reliance": "f10sizesort0v1h",
+        "comment": "using f10sizesort to match in order seq #4(#5) and #6(#7) to index seq #1(#3) and #2(#3) (to free #1 and #2) ?????????????????????"
+      },
+      "14": {
+        "sector": "f10",
+        "name": "timget",
+        "output": "void",
+        "input": "tim_t*,size_t*,size_t",
+        "tier": 2,
+        "version": "v1",
+        "reliance": "f10timdef0v1h",
+        "comment": "get *#1 tim_t and *#2 us count with gettimeofday() under #3 uscale ( if #1 = NULL only get *#2)"
+      },
+      "15": {
+        "sector": "f10",
+        "name": "datapp",
+        "output": "void",
+        "input": "dat_t*,char*,size_t*",
+        "tier": 2,
+        "version": "v1",
+        "reliance": "f10datdef0v1h",
+        "comment": "dsk append #1 dat_t* (failing #1->pos = NULL) to #2 filename recording *#3 cursor size_t"
+      },
+      "16": {
+        "sector": "f10",
+        "name": "datget",
+        "output": "void",
+        "input": "dat_t*,size_t,size_t,char*",
+        "tier": 2,
+        "version": "v1",
+        "reliance": "f10datdef0v1h",
+        "comment": "dsk get *#1 dat_t (failing #1->pos = NULL) from #2 bytes to #3 bytes in #4 filename"
+      },
+      "17": {
+        "sector": "f10",
+        "name": "dathash",
+        "output": "void",
+        "input": "dat_t*,dat_t",
+        "tier": 2,
+        "version": "v1",
+        "reliance": "crypto2h,f10datdef0v1h",
+        "comment": "hash #2 dat_t to <HSZ0>=64-byte *#1 dat_t with SHA3512 (failing #1->pos = NULL)"
+      },
+      "18": {
+        "sector": "f10",
+        "name": "dlsmrsss",
+        "output": "void",
+        "input": "void*,char*,char*,dat_t*",
+        "tier": 2,
+        "version": "v1",
+        "reliance": "f10datdef0v1h",
+        "comment": "sen_t: input #3 dim mode, #4->pos full rs seq / dat_plane (failing #4->pos = NULL) to execute #2 funcname in #1 dlhandles"
+      },
+      "19": {
+        "sector": "f10",
+        "name": "meminit",
+        "output": "void",
+        "input": "mem_t*,char*,size_t",
+        "tier": 2,
+        "version": "v1",
+        "reliance": "f10memdef0v1h",
+        "comment": "mem init *#1 mem_t (failing #1->pos = NULL) from #2 /shmstring for #3 bytes"
+      },
+      "20": {
+        "sector": "f10",
+        "name": "memocpy",
+        "output": "void",
+        "input": "mem_t*,dat_t*,size_t*",
+        "tier": 2,
+        "version": "v1",
+        "reliance": "f10datdef0v1h,f10memdef0v1h",
+        "comment": "mem occupy *#1 mem_t (failing #2->pos = NULL) to inject *#2 dat_t at *#3 size_t"
+      },
+      "21": {
+        "sector": "f10",
+        "name": "memrels",
+        "output": "void",
+        "input": "mem_t*,dat_t*,size_t*",
+        "tier": 2,
+        "version": "v1",
+        "reliance": "f10datdef0v1h,f10memdef0v1h",
+        "comment": "mem in *#1 mem_t (failing #2->pos = NULL) release *#2 dat_t at *#3 size_t"
+      },
+      "22": {
+        "sector": "f10",
+        "name": "memfina",
+        "output": "void",
+        "input": "mem_t*,char*,size_t",
+        "tier": 2,
+        "version": "v1",
+        "reliance": "f10memdef0v1h",
+        "comment": "mem unlink *#1 mem_t (failing #1->pos = NULL) from #2 /shmstring with #3 bytes"
+      },
+      "23": {
+        "sector": "f10",
+        "name": "pthwork",
+        "output": "void",
+        "input": "pth_t*",
+        "tier": 2,
+        "version": "v1",
+        "reliance": "f10pthdef0v1h",
+        "comment": "the working function for threads in #1 thread pool"
+      },
+      "24": {
+        "sector": "f10",
+        "name": "pthinit",
+        "output": "void",
+        "input": "mem_t*,sem_t*,dat_t*,size_t*",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10pthdef0v1h,f10memocpy2v1h,f10memrels2v1h",
+        "comment": "in #1 mem_pl with #2 sem_pl initialize #3->pos(pth_t*) (failing #3->pos = NULL) at *#4 siz_pt"
+      },
+      "25": {
+        "sector": "f10",
+        "name": "pthgrow",
+        "output": "void",
+        "input": "pth_t*,size_t*",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10pthdef0v1h,f10pthwork2v1h",
+        "comment": "for #1 try to add #2 threads (degrading #1->pth0stus = 1/2 suffering malloc/pthread_create)"
+      },
+      "26": {
+        "sector": "f10",
+        "name": "pthcurt",
+        "output": "void",
+        "input": "pth_t*,size_t*",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10pthdef0v1h",
+        "comment": "for #1 place thread pool status to curtail *#2 threads"
+      },
+      "27": {
+        "sector": "f10",
+        "name": "pthload",
+        "output": "void",
+        "input": "pth_t*,tfun_p,void*",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10pthdef0v1h",
+        "comment": "for #1 try to load job from #2 func #3 args (failing #3 = NULL, degrading #1->pth0stus = 4 tasks full)"
+      },
+      "28": {
+        "sector": "f10",
+        "name": "pthsync",
+        "output": "void",
+        "input": "pth_t*,size_t*",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10pthdef0v1h",
+        "comment": "for #1 wait per #2 us for all threads to idle (doing #1->pth0stus = -2)"
+      },
+      "29": {
+        "sector": "f10",
+        "name": "pthrebn",
+        "output": "void",
+        "input": "pth_t*,size_t*",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10pthdef0v1h",
+        "comment": "for #1 wait per #2 us for all threads to exit then initialize to no thread (failing #1->pth0stus = -3)"
+      },
+      "30": {
+        "sector": "f10",
+        "name": "pthfina",
+        "output": "void",
+        "input": "mem_t*,sem_t*,dat_t*,size_t*",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10pthdef0v1h,f10memocpy2v1h,f10memrels2v1h",
+        "comment": "in #1 mem_pl with #2 sem_pl release #3->pos(pth_t*) (failing #3->pos = NULL) at *#4 siz_pt"
+      },
+      "31": {
+        "sector": "f10",
+        "name": "vtxinit",
+        "output": "void",
+        "input": "mem_t*,sem_t*,dat_t*,size_t*,char*,char*,char*,char*,size_t",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10vtxdef0v1h,f10dathash2v1h,f10memocpy2v1h,f10memrels2v1h",
+        "comment": "in #1 mem_pl with #2 sem_pl allocate *#3 dat_bt *#4 siz_bt open #5 .meta #6 .base update #3->fdm1/b1,stm1/b1,irs open #7 .meta #8 .base update #3->fdm2/b2,stm2/b2 specify #9 mode = 0,1,2"
+      },
+      "32": {
+        "sector": "f10",
+        "name": "vtxload",
+        "output": "void",
+        "input": "mem_t*,sem_t*,bst_t*",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10vtxdef0v1h,f10dathash2v1h,f10memocpy2v1h,f10memrels2v1h",
+        "comment": "in #1 mem_pl with #2 sem_pl allocate vtx_l and dtx_l doubly-linked list in #3 tree"
+      },
+      "33": {
+        "sector": "f10",
+        "name": "vtxputs",
+        "output": "void",
+        "input": "mem_t*,sem_t*,bst_t*,vky_t*,dat_t*,size_t*",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10vtxdef0v1h,f10memocpy2v1h,f10memrels2v1h",
+        "comment": "in #1 mem_pl with #2 sem_pl write #3 tree by insert (#4 key, #5->pos dat, #6 = 0, failing *#6 = 0, success *#6 = stdat) or adjust (#4 key, #5->pos dat, #6 > 0, failing *#6 = 0) or delete (#4 key, #5->pos = NULL)"
+      },
+      "34": {
+        "sector": "f10",
+        "name": "vtxgets",
+        "output": "void",
+        "input": "mem_t*,sem_t*,bst_t*,vky_t*,dat_t*,size_t*",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10vtxdef0v1h,f10memocpy2v1h,f10memrels2v1h",
+        "comment": "in #1 mem_pl with #2 sem_pl search #4 key allocate #5 dat_sh at #6 siz_sh (failing #5->pos = NULL, success to memrels(#1,#5,#6) under #2 )"
+      },
+      "35": {
+        "sector": "f10",
+        "name": "vtxrebn",
+        "output": "void",
+        "input": "mem_t*,sem_t*,bst_t*",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10vtxdef0v1h,f10memocpy2v1h,f10memrels2v1h",
+        "comment": "in #1 mem_pl lock #2 sem_pl to sort and trim at end the #3 .m1/2 meta and .b1/2 base files"
+      },
+      "36": {
+        "sector": "f10",
+        "name": "vtxexhb",
+        "output": "void",
+        "input": "mem_t*,sem_t*,bst_t*",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10vtxdef0v1h,f10memocpy2v1h,f10memrels2v1h",
+        "comment": "in #1 mem_pl with #2 sem_pl print #3 tree to stdout <VEX00>=4096"
+      },
+      "37": {
+        "sector": "f10",
+        "name": "vtxdrop",
+        "output": "void",
+        "input": "mem_t*,sem_t*,bst_t*",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10vtxdef0v1h,f10dathash2v1h,f10memocpy2v1h,f10memrels2v1h",
+        "comment": "in #1 mem_pl with #2 free vtx_l and dtx_l doubly-linked list in #3 tree"
+      },
+      "38": {
+        "sector": "f10",
+        "name": "vtxfina",
+        "output": "void",
+        "input": "mem_t*,sem_t*,bst_t*",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10vtxdef0v1h,f10memocpy2v1h,f10memrels2v1h",
+        "comment": "in #1 mem_pl with #2 sem_pl release #3 tree close m1/b1,m2/b2 files"
+      },
+      "39": {
+        "sector": "f10",
+        "name": "rsssini",
+        "output": "void",
+        "input": "mem_t*,sem_t*,dat_t*,size_t*,dat_t*,size_t*,void*,dat_t,size_t*,size_t*,int8_t*,int8_t*",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10dathash2v1h,f10dlsmrsss2v1h,f10memocpy2v1h,f10memrels2v1h",
+        "comment": "in #1 mem_pl with #2 sem_pl allocate *#3 dat_rs *#4 siz_rs *#5 dat_ri *#6 siz_ri (mem failing #3/#5->pos = NULL, set failing only *#9/*#10 = 0) inject dat_rsmeta and dat_rsdata extract from mfunc handle #7 and rs seq #8 to size *#9 bys_rs *#10 bys_ri *#11 syncctrl *#12 fillctrl"
+      },
+      "40": {
+        "sector": "f10",
+        "name": "rsssexp",
+        "output": "void",
+        "input": "mem_t*,sem_t*,dat_t*,size_t*,dat_t*,size_t*,void*,dat_t,size_t*,size_t*,int8_t*,int8_t*",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10datdef0v1h,f10memdef0v1h,f10dlsmrsss2v1h",
+        "comment": "in #1 mem_pl with #2 sem_pl using *#3 dat_rs *#4 siz_rs *#5 dat_ri *#6 siz_ri inject dat_rsdata from mfunc handle #7 and rs seq #8 update size *#9 bys_rs *#10 bys_ri (seg full *#12 = 0) *#11 syncctrl *#12 fillctrl"
+      },
+      "41": {
+        "sector": "f10",
+        "name": "rsssobs",
+        "output": "void",
+        "input": "mem_t*,sem_t*,dat_t*,size_t*,dat_t*,size_t*,void*,dat_t,size_t*,size_t*,int8_t*,int8_t*",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10datdef0v1h,f10memdef0v1h,f10dlsmrsss2v1h",
+        "comment": "in #1 mem_pl with #2 sem_pl using *#3 dat_rs *#4 siz_rs *#5 dat_ri *#6 siz_ri update dat_rsdata from mfunc handle #7 and rs seq #8 update size *#9 bys_rs *#10 bys_ri (seg full *#12 = 0) *#11 syncctrl *#12 fillctrl"
+      },
+      "44": {
+        "sector": "f10",
+        "name": "rssswrt",
+        "output": "void",
+        "input": "dat_t*,size_t*,dat_t*,size_t*,char*,char*",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10datdef0v1h,f10memdef0v1h",
+        "comment": "writing *#1 dat_rs->pos *#2 bys_rs *#3 dat_ri->pos *#4 bys_ri to #5 rsname #6 riname"
+      },
+      "45": {
+        "sector": "f10",
+        "name": "rsssfin",
+        "output": "void",
+        "input": "mem_t*,sem_t*,dat_t*,size_t*,dat_t*,size_t*",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10memrels2v1h",
+        "comment": "in #1 mem_pl with #2 sem_pl free *#3 dat_rs *#4 siz_rs *#5 dat_ri *#6 siz_ri (failing #3/#5/->pos = NULL)"
+      },
+      "46": {
+        "sector": "f10",
+        "name": "rssspre",
+        "output": "void",
+        "input": "mem_t*,sem_t*,dat_t*,size_t*,char*,char*,void**",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10dlsmrsss2v1h,f10memocpy2v1h,f10memrels2v1h",
+        "comment": "in #1 mem_pl with #2 sem_pl allocate *#3 dat_rshd *#4 siz_rshd (failing #3->pos = NULL) from #5 S #6 A inputs yield *#7 mfunc handle <PML00=512> <DSK00=0.8> <FDR0=\"R10\">"
+      },
+      "47": {
+        "sector": "f10",
+        "name": "rsssyld",
+        "output": "void",
+        "input": "mem_t*,sem_t*,dat_t*,size_t*,void**",
+        "tier": 4,
+        "version": "v1",
+        "reliance": "f10dlsmrsss2v1h,f10memocpy2v1h,f10memrels2v1h",
+        "comment": "in #1 mem_pl with #2 sem_pl release *#3 dat_rshd *#4 siz_rshd dlclose *#5 mfunc handle"
+      },
+      "48": {
+        "sector": "f10",
+        "name": "rssslum",
+        "output": "void",
+        "input": "mem_t*,sem_t*,dat_t*,void*,pth_t*,size_t,size_t*,int8_t*",
+        "tier": 6,
+        "version": "v1",
+        "reliance": "f10timdef0v1h,f10pthload4v1h,f10rsssini4v1h,f10rsssexp4v1h,f10rssswrt4v1h,f10rsssfin4v1h,f10rssspre4v1h",
+        "comment": "in #1 mem_pl with #2 sem_pl from #3 rs char seq via #4 mfunc handle on #5 pth_t per #6 us band with *#7 expected events per lumi (failing *#7 = 0) *#8 underclock (not synced *#8 = 2/4) finish wrt to /Jcur"
+      },
+      "49": {
+        "sector": "f10",
+        "name": "rssskur",
+        "output": "void",
+        "input": "mem_t*,sem_t*,pth_t*,char*,char*,size_t,dat_t*,size_t*,dat_t*,size_t*,int8_t*",
+        "tier": 6,
+        "version": "v1",
+        "reliance": "f10timdef0v1h,f10pthload4v1h,f10rsssini4v1h,f10rsssobs4v1h,f10rssswrt4v1h,f10rsssfin4v1h,f10rssspre4v1h,f10rsssyld4v1h",
+        "comment": "in #1 mem_pl with #2 sem_pl on #3 pth_t from #4 S #5 A per #6 us band fill obs to *#7 dat_rs->pos *#8 bys_rs *#9 dat_ri->pos *#10 bys_ri (failing #7/#9->pos = NULL) *#11 underclock (not synced *#11 = 2/4) finish wrt to /0/cur"
+      },
+      "52": {
+        "sector": "f10",
+        "name": "rsssrun",
+        "output": "void",
+        "input": "mem_t*,sem_t*,pth_t*,char*,char*,size_t,size_t*,int8_t*",
+        "tier": 8,
+        "version": "v1",
+        "reliance": "f10rssspre4v1h,f10rsssyld4v1h,f10rssslum6v1h",
+        "comment": "in #1 mem_pl with #2 sem_pl on #3 pth_t from #4 S #5 A per #6 us band fill *#7 expected events per lumi from /0/Jcur to /Jcurs *#8 status (mem/disk failing *#8 = -1/-2)"
+      }
+    }
+  },
+  "_backg": {
+    "c3file": {
+      "c3": {
+        "_run": {
+          "1": {
+            "Direction": "north"
+          },
+          "3": {
+            "Direction": "south"
+          }
+        }
+      }
+    },
+    "b4": {
+      "b4": {
+        "_run": {
+          "1": {
+            "Section": "zone"
+          }
+        }
+      }
+    },
+    "b0": {
+      "b0": {
+        "_run": {
+          "4": {
+            "sa1": 3242
+          },
+          "3": {
+            "sa1": 242
+          },
+          "2": {
+            "sa1": 2323
+          },
+          "1": {
+            "sa1": 121
+          }
+        }
+      }
+    }
+  }
+}

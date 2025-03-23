@@ -1,0 +1,91 @@
+{
+  "_chart": {
+    "_set": "flatSimple_",
+    "_key": "flatSimple",
+    "_run": {
+      "1": {
+        "description": "A test project",
+        "name": "Project Alpha",
+        "version": "1.0.0"
+      }
+    }
+  },
+  "_backg": {
+    "flatSimple_components_1_config": {
+      "config": {
+        "_run": {
+          "1": {
+            "collections": ["users", "products"],
+            "url": "mongodb://localhost:27017"
+          }
+        }
+      }
+    },
+    "flatSimple_components_0_config": {
+      "config": {
+        "_run": {
+          "1": {
+            "host": "localhost",
+            "port": 8080
+          }
+        }
+      }
+    },
+    "flatSimple_settings": {
+      "settings": {
+        "_run": {
+          "1": {
+            "debug": "true",
+            "retry": 3,
+            "timeout": 30
+          }
+        }
+      }
+    },
+    "flatSimple_metadata": {
+      "metadata": {
+        "_run": {
+          "1": {
+            "created": "2023-06-01"
+          }
+        }
+      }
+    },
+    "flatSimple_components_0": {
+      "comp0": {
+        "_run": {
+          "1": {
+            "id": "comp1",
+            "type": "service"
+          }
+        }
+      }
+    },
+    "flatSimple_components_1": {
+      "comp1": {
+        "_run": {
+          "1": {
+            "id": "comp2",
+            "type": "database"
+          }
+        }
+      }
+    },
+    "flatSimple_metadata_author": {
+      "author": {
+        "_run": {
+          "1": {
+            "email": "john@example.com",
+            "name": "John Doe"
+          }
+        }
+      }
+    },
+    "flatSimple_components": {
+      "components": {
+        "_run": {
+        }
+      }
+    }
+  }
+}

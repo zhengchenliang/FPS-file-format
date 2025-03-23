@@ -1,0 +1,246 @@
+{
+  "_chart": {
+    "_set": "flatComplex_",
+    "_key": "flatComplex",
+    "_run": {
+
+    }
+  },
+  "_backg": {
+    "flatComplex_configuration": {
+      "configuration": {
+        "_run": {
+        }
+      }
+    },
+    "flatComplex_modules_0_config_password_policy": {
+      "password_policy": {
+        "_run": {
+          "1": {
+            "min_length": 8,
+            "require_numbers": "true",
+            "require_special_chars": "true"
+          }
+        }
+      }
+    },
+    "flatComplex_modules_1": {
+      "comp1": {
+        "_run": {
+          "1": {
+            "dependencies": ["database", "reporting"],
+            "enabled": "true",
+            "id": "inventory",
+            "name": "Inventory Management"
+          }
+        }
+      }
+    },
+    "flatComplex_modules_0": {
+      "comp0": {
+        "_run": {
+          "1": {
+            "dependencies": ["auth", "logging"],
+            "enabled": "true",
+            "id": "user_mgmt",
+            "name": "User Management"
+          }
+        }
+      }
+    },
+    "flatComplex_modules_0_config": {
+      "config": {
+        "_run": {
+          "1": {
+            "max_users": 10000
+          }
+        }
+      }
+    },
+    "flatComplex_configuration_database_credentials": {
+      "credentials": {
+        "_run": {
+          "1": {
+            "password_encrypted": "********",
+            "username": "app_user"
+          }
+        }
+      }
+    },
+    "flatComplex_modules_1_config_locations": {
+      "locations": {
+        "_run": {
+        }
+      }
+    },
+    "flatComplex_modules_1_config": {
+      "config": {
+        "_run": {
+          "1": {
+            "auto_reorder": "true",
+            "low_stock_threshold": 10
+          }
+        }
+      }
+    },
+    "flatComplex_configuration_database": {
+      "database": {
+        "_run": {
+          "1": {
+            "connection_pool": 25,
+            "host": "db.example.com",
+            "port": 5432,
+            "timeout_seconds": 30
+          }
+        }
+      }
+    },
+    "flatComplex_configuration_cache": {
+      "cache": {
+        "_run": {
+          "1": {
+            "enabled": "true",
+            "max_size_mb": 256,
+            "ttl_seconds": 600
+          }
+        }
+      }
+    },
+    "flatComplex_modules_1_config_locations_2": {
+      "comp2": {
+        "_run": {
+          "1": {
+            "capacity": 500,
+            "id": "retail_1",
+            "name": "Retail Store 1"
+          }
+        }
+      }
+    },
+    "flatComplex_modules_1_config_locations_1": {
+      "comp1": {
+        "_run": {
+          "1": {
+            "capacity": 2500,
+            "id": "warehouse_b",
+            "name": "Secondary Warehouse"
+          }
+        }
+      }
+    },
+    "flatComplex_modules_1_config_locations_0": {
+      "comp0": {
+        "_run": {
+          "1": {
+            "capacity": 5000,
+            "id": "warehouse_a",
+            "name": "Main Warehouse"
+          }
+        }
+      }
+    },
+    "flatComplex_application": {
+      "application": {
+        "_run": {
+          "1": {
+            "is_stable": "true",
+            "name": "Enterprise Resource System",
+            "release_date": "2023-08-15",
+            "version": "4.2.1"
+          }
+        }
+      }
+    },
+    "flatComplex_modules_0_permissions": {
+      "permissions": {
+        "_run": {
+        }
+      }
+    },
+    "flatComplex_modules_1_permissions": {
+      "permissions": {
+        "_run": {
+        }
+      }
+    },
+    "flatComplex_modules_1_permissions_2": {
+      "comp2": {
+        "_run": {
+          "1": {
+            "access": "read-only",
+            "role": "sales"
+          }
+        }
+      }
+    },
+    "flatComplex_modules_1_permissions_0": {
+      "comp0": {
+        "_run": {
+          "1": {
+            "access": "full",
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "flatComplex_modules_1_permissions_1": {
+      "comp1": {
+        "_run": {
+          "1": {
+            "access": "full",
+            "role": "inventory_manager"
+          }
+        }
+      }
+    },
+    "flatComplex_modules_0_permissions_2": {
+      "comp2": {
+        "_run": {
+          "1": {
+            "access": "read-only",
+            "role": "user"
+          }
+        }
+      }
+    },
+    "flatComplex_modules_0_permissions_1": {
+      "comp1": {
+        "_run": {
+          "1": {
+            "access": "read-write",
+            "role": "manager"
+          }
+        }
+      }
+    },
+    "flatComplex_modules_0_permissions_0": {
+      "comp0": {
+        "_run": {
+          "1": {
+            "access": "full",
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "flatComplex_modules": {
+      "modules": {
+        "_run": {
+        }
+      }
+    },
+    "flatComplex_system_metrics": {
+      "system_metrics": {
+        "_run": {
+          "1": {
+            "active_users": 843,
+            "average_load": 0.75,
+            "historical_load": [0.65, 0.7, 0.68, 0.72, 0.75, 0.8, 0.78],
+            "memory_usage_percent": 68.2,
+            "uptime_days": 124.5
+          }
+        }
+      }
+    }
+  }
+}

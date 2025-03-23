@@ -26,6 +26,7 @@ The **FPS File Format** is a lightweight, text-based format designed for organiz
   - Filter records based on conditions.
   - Sort data by a specified key.
   - Merge multiple FPS files.
+  - Convert FPS files to JSON and back (json/flat).
   - Execute external scripts on selected rows with flexible selectors (including ranges and parallel/sequential execution).
 
 ## Installation
@@ -98,6 +99,18 @@ Merge Files:
 $ fps merge out0.fps in1.fps in2.fps ...
 ```
 Merges multiple FPS files (ensuring they share the same key set) and normalizes the merged result.
+
+Convert FPS to JSON:
+```bash
+$ fps json x.fps
+```
+Converts an FPS file to a structured JSON format, preserving all data, background references, and nested relationships. The output is saved with a `.json` extension.
+
+Convert JSON to FPS:
+```bash
+$ fps flat x.json
+```
+Converts a JSON file back to the FPS format, creating a main FPS file (with `_.fps` extension) and potentially multiple supporting FPS files for nested structures.
 
 Run External Scripts:
 
@@ -190,11 +203,135 @@ The FPS tool comprises several functions, each tailored for a specific operation
     fps_merge_set:
     Merges multiple FPS files after validating that they share the same key set, and produces a merged, normalized output file.
 
+    fps_json:
+    Converts an FPS file to a structured JSON format, preserving the hierarchy and relationships:
+    - Chart data is mapped to a `_chart` section with `_set`, `_key`, and `_run` properties.
+    - Background references are mapped to a `_backg` section with nested structures.
+    - Automatically handles arrays, nested objects, and primitive data types.
+    - Properly formats numeric and string values according to JSON standards.
+    
+    fps_flat:
+    Converts a JSON file back to the FPS format:
+    - Creates a main FPS file with a `_.fps` extension.
+    - Generates additional FPS files for nested objects and arrays.
+    - Maintains relationships through background references.
+    - Handles arrays, nested objects, and primitive values appropriately.
+    - Preserves the complete data structure and relationships from the JSON.
+
     fps_run_script:
     Executes an external script (ELF, shell, or Python) on selected rows of an FPS file. It supports:
         Single run numbers (e.g., 5).
         Ranges (e.g., 6-8), which are expanded using seq.
         Comma-separated selectors for sequential or parallel execution, based on the first term.
+
+## JSON/FPS Conversion Examples
+
+### Converting FPS to JSON
+
+Starting with a simple FPS file structure:
+
+```
+Key1|Key2|Key3||prere||bg1.fps:1|bg2.fps:2
+value1|value2|value3
+value4|value5|value6
+```
+
+Converting to JSON with:
+
+```bash
+$ fps json simple.fps
+```
+
+Produces a structured JSON like:
+
+```json
+{
+  "_chart": {
+    "_set": "simple",
+    "_key": "prere",
+    "_run": {
+      "1": {
+        "Key1": "value1",
+        "Key2": "value2",
+        "Key3": "value3"
+      },
+      "2": {
+        "Key1": "value4",
+        "Key2": "value5",
+        "Key3": "value6"
+      }
+    }
+  },
+  "_backg": {
+    "bg1": {
+      "prere": {
+        "_run": {
+          "1": {
+            // bg1 run 1 data
+          }
+        }
+      }
+    },
+    "bg2": {
+      "prere": {
+        "_run": {
+          "2": {
+            // bg2 run 2 data
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### Converting JSON to FPS
+
+Starting with a JSON file:
+
+```json
+{
+  "metadata": {
+    "author": "John Doe",
+    "version": 1.2
+  },
+  "settings": {
+    "timeout": 300
+  },
+  "components": [
+    {
+      "name": "component1",
+      "active": true,
+      "config": {
+        "port": 8080
+      }
+    },
+    {
+      "name": "component2",
+      "active": false,
+      "config": {
+        "port": 9000
+      }
+    }
+  ]
+}
+```
+
+Converting back to FPS:
+
+```bash
+$ fps flat complex.json
+```
+
+Creates multiple FPS files:
+- `complex_.fps` (main file with references)
+- `complex_metadata.fps` 
+- `complex_settings.fps`
+- `complex_components.fps`
+- `complex_components_0.fps`, `complex_components_1.fps` 
+- `complex_components_0_config.fps`, `complex_components_1_config.fps`
+
+These files maintain all the relationships and data structure of the original JSON.
 
 Contributing
 
@@ -208,4 +345,3 @@ For additional information or support, please contact the project maintainer:
 
     Name: zhliang
     GitHub: this repo
-

@@ -1,0 +1,2 @@
+connection_pool|host|port|timeout_seconds||database||flatComplex_configuration_database_credentials
+25|db.example.com|5432|30

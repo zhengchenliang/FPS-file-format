@@ -1,0 +1,28 @@
+{
+  "_chart": {
+    "_set": "a0bg",
+    "_key": "c0",
+    "_run": {
+      "1": {
+        "name": "func1",
+        "tier": 1,
+        "testarray1": [1, 2, 3, 4, 5],
+        "testarray2": ["abc", "def", "ghi"]
+      }
+    }
+  },
+  "_backg": {
+    "b1": {
+      "b1": {
+        "_run": {
+          "1": {
+            "name": "bg1",
+            "tier": 10,
+            "arr1": [100, 200, 300],
+            "arr2": ["x", "y", "z"]
+          }
+        }
+      }
+    }
+  }
+}

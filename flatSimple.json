@@ -1,0 +1,35 @@
+{
+  "name": "Project Alpha",
+  "version": "1.0.0",
+  "description": "A test project",
+  "settings": {
+    "debug": true,
+    "timeout": 30,
+    "retry": 3
+  },
+  "components": [
+    {
+      "id": "comp1",
+      "type": "service",
+      "config": {
+        "port": 8080,
+        "host": "localhost"
+      }
+    },
+    {
+      "id": "comp2",
+      "type": "database",
+      "config": {
+        "url": "mongodb://localhost:27017",
+        "collections": ["users", "products"]
+      }
+    }
+  ],
+  "metadata": {
+    "created": "2023-06-01",
+    "author": {
+      "name": "John Doe",
+      "email": "john@example.com"
+    }
+  }
+} 

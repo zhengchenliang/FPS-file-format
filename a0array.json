@@ -1,0 +1,20 @@
+{
+  "_chart": {
+    "_set": "a0array",
+    "_key": "c0",
+    "_run": {
+      "1": {
+        "name": "func1",
+        "tier": 1,
+        "testarray1": [1, 2, 3, 4, 5],
+        "testarray2": ["abc", "def", "ghi"]
+      },
+      "2": {
+        "name": "func2",
+        "tier": 2,
+        "testarray1": [10, 20, 30],
+        "testarray2": ["hello", "world"]
+      }
+    }
+  }
+}
