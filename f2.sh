@@ -2,7 +2,7 @@
 
 # shc -f f1.sh -o f1 -H
 
-## fps a3func2build.sh:"build vers=\"v1\" functional" m45.fps:0 m100.fps:0,1-4 m100.fps:5 m100.fps:6-8 m100.fps:0,10,12 m100.fps:-,13,14 m100.fps:0,"name = 'test'" m283.fps:-
+## fps a3func2build.sh:"build vers=\"v1\" functional" m45.fps:0 m100.fps:0,1-4 m100.fps:5 m100.fps:6-8 m100.fps:0,10,12 m100.fps:-,13,14 m100.fps:0,"name == 'test'" m283.fps:-
 
 ### Func
 is_numeric() {
