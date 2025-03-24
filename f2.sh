@@ -2033,7 +2033,7 @@ if [[ $# -lt 1 ]]; then
   echo "$0 draw x.fps                           # draw align -> @.fps"
   echo "$0 norm x.fps                           # normalize -> prere.fps"
   echo "$0 json x.fps                           # convert fps to json -> .json"
-  echo "$0 jfps x.json                          # convert json back to -> .fps"
+  echo "$0 jfps x.json                          # convert fpsjson back -> .fps"
   echo "$0 flat x.json                          # convert json to fps -> _.fps"
   echo "$0 stat x.fps Key                       # show stat of a key -> @.stat"
   echo "$0 find x.fps Word                      # search for a word in prere/chart"
