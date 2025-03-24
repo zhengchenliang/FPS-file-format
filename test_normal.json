@@ -1,0 +1,66 @@
+{
+  "_chart": {
+    "_set": "test_normal",
+    "_key": "test",
+    "_run": {
+
+    }
+  },
+  "_backg": {
+    "c3file": {
+      "c3": {
+        "_run": {
+          "1": {
+            "Direction": "north"
+          },
+          "3": {
+            "Direction": "south"
+          }
+        }
+      }
+    },
+    "m0": {
+      "m0": {
+        "_run": {
+          "1": {
+            "sector": "f10",
+            "name": "pardef",
+            "output": "void",
+            "input": "int",
+            "tier": 0,
+            "version": "v1",
+            "reliance": "-",
+            "comment": "pre-define global run parameters"
+          }
+        }
+      }
+    },
+    "b4": {
+      "b4": {
+        "_run": {
+          "1": {
+            "Section": "zone"
+          }
+        }
+      }
+    },
+    "b0": {
+      "b0": {
+        "_run": {
+          "4": {
+            "sa1": 3242
+          },
+          "3": {
+            "sa1": 242
+          },
+          "2": {
+            "sa1": 2323
+          },
+          "1": {
+            "sa1": 121
+          }
+        }
+      }
+    }
+  }
+}

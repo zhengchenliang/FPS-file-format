@@ -1,0 +1,76 @@
+{
+  "_chart": {
+    "_set": "test_multi",
+    "_key": "test",
+    "_run": {
+
+    }
+  },
+  "_backg": {
+    "c3file": {
+      "c3": {
+        "_run": {
+          "1": {
+            "Direction": "north"
+          },
+          "3": {
+            "Direction": "south"
+          }
+        }
+      }
+    },
+    "m0": {
+      "m0": {
+        "_run": {
+          "52": {
+            "sector": "f10",
+            "name": "rsssrun",
+            "output": "void",
+            "input": "mem_t*,sem_t*,pth_t*,char*,char*,size_t,size_t*,int8_t*",
+            "tier": 8,
+            "version": "v1",
+            "reliance": "f10rssspre4v1h,f10rsssyld4v1h,f10rssslum6v1h",
+            "comment": "in #1 mem_pl with #2 sem_pl on #3 pth_t from #4 S #5 A per #6 us band fill *#7 expected events per lumi from /0/Jcur to /Jcurs *#8 status (mem/disk failing *#8 = -1/-2)"
+          },
+          "49": {
+            "sector": "f10",
+            "name": "rssskur",
+            "output": "void",
+            "input": "mem_t*,sem_t*,pth_t*,char*,char*,size_t,dat_t*,size_t*,dat_t*,size_t*,int8_t*",
+            "tier": 6,
+            "version": "v1",
+            "reliance": "f10timdef0v1h,f10pthload4v1h,f10rsssini4v1h,f10rsssobs4v1h,f10rssswrt4v1h,f10rsssfin4v1h,f10rssspre4v1h,f10rsssyld4v1h",
+            "comment": "in #1 mem_pl with #2 sem_pl on #3 pth_t from #4 S #5 A per #6 us band fill obs to *#7 dat_rs->pos *#8 bys_rs *#9 dat_ri->pos *#10 bys_ri (failing #7/#9->pos = NULL) *#11 underclock (not synced *#11 = 2/4) finish wrt to /0/cur"
+          }
+        }
+      }
+    },
+    "b4": {
+      "b4": {
+        "_run": {
+          "1": {
+            "Section": "zone"
+          }
+        }
+      }
+    },
+    "b0": {
+      "b0": {
+        "_run": {
+          "4": {
+            "sa1": 3242
+          },
+          "3": {
+            "sa1": 242
+          },
+          "2": {
+            "sa1": 2323
+          },
+          "1": {
+            "sa1": 121
+          }
+        }
+      }
+    }
+  }
+}

@@ -815,7 +815,29 @@ fps_run_script() {
           [[ "$subFile" != *.fps ]] && subFile="${subFile}.fps"
           if [[ "$bval" == *":"* ]]; then
             local subRun="${bval##*:}"
-            if ! [[ "$subRun" =~ ^[0-9]+$ ]]; then
+            # Check if this is a condition-based selector (enclosed in double quotes)
+            if [[ "$subRun" =~ ^\".*\"$ ]]; then
+              # Extract the condition from the quotes
+              local subConditionSelector="${subRun:1:$((${#subRun}-2))}"
+              echo "$0: Processing condition-based sub-background selector: $subConditionSelector for $subFile"
+              # Get matching run numbers using fps_sift
+              if [[ -f "$subFile" ]]; then
+                local sub_matching_runs=$(fps_sift "$subFile" "$subConditionSelector" "array")
+                if [[ -z "$sub_matching_runs" ]]; then
+                  echo "$0: No runs in '$subFile' match the condition: $subConditionSelector"
+                  continue
+                fi
+                echo "$0: Matched runs in '$subFile': $sub_matching_runs"
+                # Add each matching run to the queue
+                IFS=',' read -ra sub_run_arr <<< "$sub_matching_runs"
+                for r in "${sub_run_arr[@]}"; do
+                  queue+=("${subFile}:${r}")
+                done
+              else
+                echo "$0: Skipped background '$subFile' not accessed as a file."
+              fi
+              continue
+            elif ! [[ "$subRun" =~ ^[0-9]+$ ]]; then
               echo "$0: Skipped background '$bval' invalid run number '$subRun'."
               continue
             fi
@@ -853,11 +875,34 @@ fps_run_script() {
       if [[ "$bentry" == *":"* ]]; then
         local subFile="${bentry%%:*}"
         local subRun="${bentry##*:}"
-        if ! [[ "$subRun" =~ ^[0-9]+$ ]]; then
+        # Check if this is a condition-based selector (enclosed in double quotes)
+        if [[ "$subRun" =~ ^\".*\"$ ]]; then
+          # Extract the condition from the quotes
+          local conditionSelector="${subRun:1:$((${#subRun}-2))}"
+          echo "$0: Processing condition-based background selector: $conditionSelector for $subFile"
+          # Get matching run numbers using fps_sift
+          [[ "$subFile" != *.fps ]] && subFile="${subFile}.fps"
+          if [[ -f "$subFile" ]]; then
+            local matching_runs=$(fps_sift "$subFile" "$conditionSelector" "array")
+            if [[ -z "$matching_runs" ]]; then
+              echo "$0: No runs in '$subFile' match the condition: $conditionSelector"
+              continue
+            fi
+            echo "$0: Matched runs in '$subFile': $matching_runs"
+            # Process each matching run
+            IFS=',' read -ra run_arr <<< "$matching_runs"
+            for r in "${run_arr[@]}"; do
+              _setup_bg_iterative "$subFile" "$r"
+            done
+          else
+            echo "$0: Skipped background '$subFile' not accessed as a file."
+          fi
+        elif ! [[ "$subRun" =~ ^[0-9]+$ ]]; then
           echo "$0: Skipped background '$bentry' invalid run number '$subRun'."
           continue
+        else
+          _setup_bg_iterative "$subFile" "$subRun"
         fi
-        _setup_bg_iterative "$subFile" "$subRun"
       else # default run 1
         _setup_bg_iterative "$bentry" "1"
       fi
@@ -1037,9 +1082,32 @@ fps_json() {
       [[ "$bfile" != *.fps ]] && bfile="${bfile}.fps"
       local brun=1 # Default run
       local processAllRuns=false
+      local conditionSelector=""
       if [[ "$bentry" == *":"* ]]; then
         brun="${bentry##*:}"
-        if [[ "$brun" == "0" ]]; then
+        # Check if this is a condition-based selector (enclosed in double quotes)
+        if [[ "$brun" =~ ^\".*\"$ ]]; then
+          # Extract the condition from the quotes
+          conditionSelector="${brun:1:$((${#brun}-2))}"
+          echo "$0: Processing condition-based background selector: $conditionSelector for $bfile"
+          # Get matching run numbers using fps_sift
+          if [[ -f "$bfile" ]]; then
+            local matching_runs=$(fps_sift "$bfile" "$conditionSelector" "array")
+            if [[ -z "$matching_runs" ]]; then
+              echo "$0: No runs in '$bfile' match the condition: $conditionSelector"
+              continue
+            fi
+            echo "$0: Matched runs in '$bfile': $matching_runs"
+            # Add each matching run to the queue
+            IFS=',' read -ra run_arr <<< "$matching_runs"
+            for r in "${run_arr[@]}"; do
+              queue+=("${bfile}:${r}")
+            done
+          else
+            echo "$0: Skipped background '$bfile' not accessed as a file."
+          fi
+          continue
+        elif [[ "$brun" == "0" ]]; then
           # Special case: process all runs in the file
           processAllRuns=true
         elif ! [[ "$brun" =~ ^[0-9]+$ ]]; then
@@ -1071,7 +1139,29 @@ fps_json() {
             local processAllSubRuns=false
             if [[ "$bval" == *":"* ]]; then
               subRun="${bval##*:}"
-              if [[ "$subRun" == "0" ]]; then
+              # Check if this is a condition-based selector (enclosed in double quotes)
+              if [[ "$subRun" =~ ^\".*\"$ ]]; then
+                # Extract the condition from the quotes
+                local subConditionSelector="${subRun:1:$((${#subRun}-2))}"
+                echo "$0: Processing condition-based sub-background selector: $subConditionSelector for $subFile"
+                # Get matching run numbers using fps_sift
+                if [[ -f "$subFile" ]]; then
+                  local sub_matching_runs=$(fps_sift "$subFile" "$subConditionSelector" "array")
+                  if [[ -z "$sub_matching_runs" ]]; then
+                    echo "$0: No runs in '$subFile' match the condition: $subConditionSelector"
+                    continue
+                  fi
+                  echo "$0: Matched runs in '$subFile': $sub_matching_runs"
+                  # Add each matching run to the queue
+                  IFS=',' read -ra sub_run_arr <<< "$sub_matching_runs"
+                  for r in "${sub_run_arr[@]}"; do
+                    queue+=("${subFile}:${r}")
+                  done
+                else
+                  echo "$0: Skipped background '$subFile' not accessed as a file."
+                fi
+                continue
+              elif [[ "$subRun" == "0" ]]; then
                 # Special case: process all runs in the file
                 processAllSubRuns=true
               elif ! [[ "$subRun" =~ ^[0-9]+$ ]]; then
@@ -1109,11 +1199,9 @@ fps_json() {
             fi
           done
         fi
-        
         # Count the number of lines (runs) in the file, excluding the header
         local runCount=$(wc -l < "$bfile")
         ((runCount--)) # Subtract 1 for the header line
-        
         # If the file is void-body but has background references, add a dummy run
         if [[ $runCount -eq 0 && -n "$bb0" ]]; then
           queue+=("${bfile}:1")
@@ -1153,23 +1241,19 @@ fps_json() {
       local bb0=$(echo "$bh0" | awk -F'[|][|]' '{print $3}') # backg
       local bc0=$(echo "$bh0" | awk -F'[|][|]' '{print $2}') # prere
       local bp0=$(echo "$bh0" | awk -F'[|][|]' '{print $1}') # chart
-      
       # Check if this is a void-body file
       local is_void_body=false
-      
       IFS='|' read -ra bps0 <<< "$bp0"
       local nbps0=${#bps0[@]}
       # Get the specified run
       local lineNum=$((brun + 1))
       local boneLine=$(tail -n +$lineNum "$bfile" | head -n 1)
-      
       # Add to the data structure
       local cleanFile="${bfile%.fps}"
       local chartPrefix="${bc0}"
       # Store file and chart in sets (to track unique values)
       backg_files["$cleanFile"]=1
       backg_charts["$cleanFile:$chartPrefix"]=1
-      
       if [[ -z "$boneLine" && "$is_void_body" == "true" ]]; then
         # Void-body file with no runs - store empty data
         backg_data["$cleanFile:$chartPrefix:$brun"]=""
@@ -1180,7 +1264,6 @@ fps_json() {
           echo "$0: Skipped in '$bfile' run #$brun mismatch."
           continue
         fi
-        
         # Build the JSON for this run
         local run_json=""
         if [[ "$is_void_body" == "false" ]]; then
@@ -1237,7 +1320,6 @@ fps_json() {
         # Store the run data
         backg_data["$cleanFile:$chartPrefix:$brun"]="$run_json"
       fi
-      
       # Add sub-backgrounds to the queue if they exist
       if [[ -n "$bb0" ]]; then
         IFS='|' read -ra bbs0 <<< "$bb0"
@@ -1248,7 +1330,29 @@ fps_json() {
           local processAllRuns=false
           if [[ "$bval" == *":"* ]]; then
             subRun="${bval##*:}"
-            if [[ "$subRun" == "0" ]]; then
+            # Check if this is a condition-based selector (enclosed in double quotes)
+            if [[ "$subRun" =~ ^\".*\"$ ]]; then
+              # Extract the condition from the quotes
+              local subConditionSelector="${subRun:1:$((${#subRun}-2))}"
+              echo "$0: Processing condition-based sub-background selector: $subConditionSelector for $subFile"
+              # Get matching run numbers using fps_sift
+              if [[ -f "$subFile" ]]; then
+                local sub_matching_runs=$(fps_sift "$subFile" "$subConditionSelector" "array")
+                if [[ -z "$sub_matching_runs" ]]; then
+                  echo "$0: No runs in '$subFile' match the condition: $subConditionSelector"
+                  continue
+                fi
+                echo "$0: Matched runs in '$subFile': $sub_matching_runs"
+                # Add each matching run to the queue
+                IFS=',' read -ra sub_run_arr <<< "$sub_matching_runs"
+                for r in "${sub_run_arr[@]}"; do
+                  queue+=("${subFile}:${r}")
+                done
+              else
+                echo "$0: Skipped background '$subFile' not accessed as a file."
+              fi
+              continue
+            elif [[ "$subRun" == "0" ]]; then
               # Special case: process all runs in the file
               processAllRuns=true
             elif ! [[ "$subRun" =~ ^[0-9]+$ ]]; then
@@ -1273,11 +1377,9 @@ fps_json() {
             if [[ "$subChart" == "-" ]]; then
               is_sub_void_body=true
             fi
-            
             # Count the number of lines (runs) in the file, excluding the header
             local subRunCount=$(wc -l < "$subFile")
             ((subRunCount--)) # Subtract 1 for the header line
-            
             # If the file is void-body but has background references, add a dummy run
             if [[ $subRunCount -eq 0 && -n "$subBackg" ]]; then
               queue+=("${subFile}:1")
