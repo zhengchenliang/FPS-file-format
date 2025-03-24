@@ -226,7 +226,7 @@ fps_norm() {
       done
       out0+=$(IFS='|'; echo "${slm0[*]}")$'\n'
     fi
-  done < <( { tail -n +2 "$file"; [[ $SYST -gt 1 && "$(tail -c 1 "$file")" != $'\n' ]] && printf "\n"; } )
+  done < <( { tail -n +2 "$file"; [[ "$(tail -c 1 "$file")" != $'\n' ]] && printf "\n"; } )
   out0="${out0%$'\n'}"
   echo "$out0" > "${c0}.fps"
   echo "$0: Normalized '$file' to '${c0}.fps'"
@@ -410,7 +410,7 @@ fps_find() {
         found+=("$lin2")
     fi
     ((lin2++))
-  done < <( { tail -n +2 "$file"; [[ $SYST -gt 1 && "$(tail -c 1 "$file")" != $'\n' ]] && printf "\n"; } )
+  done < <( { tail -n +2 "$file"; [[ "$(tail -c 1 "$file")" != $'\n' ]] && printf "\n"; } )
   local anyfound=false
   if [[ ${#pfound[@]} -gt 0 ]]; then
     echo "$file Word '$value' in Prerequisite: ${pfound[*]}"
@@ -633,7 +633,7 @@ fps_sort_key() {
       ((sample_count++))
       [[ $sample_count -ge 10 ]] && break # Limit to first 10 samples to save time
     fi
-  done < <( { tail -n +2 "$file"; [[ $SYST -gt 1 && "$(tail -c 1 "$file")" != $'\n' ]] && printf "\n"; } )
+  done < <( { tail -n +2 "$file"; [[ "$(tail -c 1 "$file")" != $'\n' ]] && printf "\n"; } )
   local sort_command
   if $numeric; then
     if [[ "$order" == "+" ]]; then
@@ -727,7 +727,7 @@ fps_merge_set() {
         done
         out1+=$(IFS='|'; echo "${slm1[*]}")$'\n'
       fi
-    done < <( { tail -n +2 "${input_files[f1]}"; [[ $SYST -gt 1 && "$(tail -c 1 "${input_files[f1]}")" != $'\n' ]] && printf "\n"; } )
+    done < <( { tail -n +2 "${input_files[f1]}"; [[ "$(tail -c 1 "${input_files[f1]}")" != $'\n' ]] && printf "\n"; } )
     out1="${out1%$'\n'}"
     echo "$out1" >> $output_file
   done
@@ -920,7 +920,7 @@ fps_run_script() {
       else
         echo "$0: Skipping mismatched run #$nl0."
       fi
-    done < <( { tail -n +2 "$file"; [[ $SYST -gt 1 && "$(tail -c 1 "$file")" != $'\n' ]] && printf "\n"; } )
+    done < <( { tail -n +2 "$file"; [[ "$(tail -c 1 "$file")" != $'\n' ]] && printf "\n"; } )
     echo "$0: Done with ${nl1}/${nl0} runs (serial)"
   elif [[ "$sel" == "0" ]]; then # parallel run then wait
     while IFS='|' read -ra fields; do
@@ -931,7 +931,7 @@ fps_run_script() {
       else
         echo "$0: Skipping mismatched run #$nl0."
       fi
-    done < <( { tail -n +2 "$file"; [[ $SYST -gt 1 && "$(tail -c 1 "$file")" != $'\n' ]] && printf "\n"; } )
+    done < <( { tail -n +2 "$file"; [[ "$(tail -c 1 "$file")" != $'\n' ]] && printf "\n"; } )
     wait
     echo "$0: Done with ${nl1}/${nl0} runs (parallel)"
   elif [[ "$sel" == "-" ]]; then # parallel run mixed
@@ -943,7 +943,7 @@ fps_run_script() {
       else
         echo "$0: Skipping mismatched run #$nl0."
       fi
-    done < <( { tail -n +2 "$file"; [[ $SYST -gt 1 && "$(tail -c 1 "$file")" != $'\n' ]] && printf "\n"; } )
+    done < <( { tail -n +2 "$file"; [[ "$(tail -c 1 "$file")" != $'\n' ]] && printf "\n"; } )
     fin0=1
     echo "$0: Done with ${nl1}/${nl0} runs (parallel)"
   else # single run
@@ -1061,7 +1061,7 @@ fps_json() {
       runs_json+="\n      }"
       ((run_count++))
     fi
-  done < <( { tail -n +2 "$file"; [[ $SYST -gt 1 && "$(tail -c 1 "$file")" != $'\n' ]] && printf "\n"; } )
+  done < <( { tail -n +2 "$file"; [[ "$(tail -c 1 "$file")" != $'\n' ]] && printf "\n"; } )
   # Add the runs to the _chart section
   json+="    \"_run\": {\n$runs_json\n    }\n  }"
   # Process background files iteratively if they exist
@@ -1761,16 +1761,8 @@ if [[ $# -lt 1 ]]; then
   echo "$0 sort x.fps Key 1/+ or 2/-            # sort key ascend/descend -> @.fps"
   echo "$0 merge out0.fps in1.fps ...           # merge same key set and normalize"
   echo "$0 ELF/.sh/.py x.fps[:0=pll|:N=run] ... # run script with environment vars"
-  echo "$0 ELF/.sh/.py x.fps:-,"a > 2"          # run script with condition sifter"
+  echo "$0 ELF/.sh/.py x.fps:-,\"a > 2\"          # run script with condition sifter"
   exit 0
-fi
-
-if [[ $(uname -s) == "Linux" ]]; then
-  SYST=1
-elif [[ $(uname -s) =~ MINGW|MSYS|CYGWIN ]]; then
-  SYST=2
-else
-  SYST=3
 fi
 
 case "$1" in
