@@ -30,7 +30,7 @@ _fps_completion() {
   cur="${COMP_WORDS[COMP_CWORD]}"
   prev="${COMP_WORDS[COMP_CWORD-1]}"
   if [[ $COMP_CWORD -eq 1 ]]; then
-    opts="inst uninst keys draw norm stat find sift sort merge json flat"
+    opts="inst uninst keys draw norm json jfps flat stat find sift sort merge"
     local opt_completions=( $(compgen -W "${opts}" -- "${cur}") )
     local file_completions=( $(compgen -f -- "${cur}") )
     local filtered_file_completions=()
@@ -857,14 +857,22 @@ fps_run_script() {
       for (( i0=0; i0<${#ps0[@]}; i0++ )); do
         export "${c0}${ps0[$i0]}=${rowArr[$i0]}"
       done
-      ./"$script"
+      if [[ -n "${FPS_RUN_ARGS}" ]]; then
+        eval "./$script ${FPS_RUN_ARGS}"
+      else
+        ./"$script"
+      fi
     elif [[ "$script" == *.py ]]; then
       local var0="$var0b"
       var0+="${c0}='${nl0}'; "
       for (( i0=0; i0<${#ps0[@]}; i0++ )); do
         var0+="${c0}${ps0[$i0]}='${rowArr[$i0]}'; "
       done
-      python3 -c "import os; ${var0}exec(open('$script').read())"
+      if [[ -n "${FPS_RUN_ARGS}" ]]; then
+        eval "python3 -c \"import os; ${var0}exec(open('$script').read())\" ${FPS_RUN_ARGS}"
+      else
+        python3 -c "import os; ${var0}exec(open('$script').read())"
+      fi
     fi
   }
   # backg
@@ -1453,6 +1461,277 @@ fps_json() {
   echo "$0: Converted '$file' to '$out_file'"
 }
 
+fps_jfps() {
+  local json_file="$1"
+  if [[ ! -f "$json_file" || "$json_file" != *.json ]]; then
+    echo "$0: FPS induced JSON '$json_file' not found."
+    exit 1
+  fi
+  local fields=""
+  local set_name=$(grep -o '"_set": *"[^"]*"' "$json_file" | head -1 | sed 's/"_set": *"\([^"]*\)"/\1/')
+  local key_name=$(grep -o '"_key": *"[^"]*"' "$json_file" | head -1 | sed 's/"_key": *"\([^"]*\)"/\1/')
+  if [[ -z "$set_name" || -z "$key_name" ]]; then
+    echo "$0: Could not extract _set or _key from FPS-induced JSON."
+    exit 1
+  fi
+  local out_file="${set_name}.fps"
+  extract_backgrounds_from_json() {
+    local json_file="$1"
+    local bg_refs=""
+    if grep -q '"_backg":' "$json_file"; then
+      local bg_section=$(sed -n '/"_backg": *{/,/^  }/p' "$json_file")
+      local bg_files=$(echo "$bg_section" | grep -o '"[^"]*": *{' | grep -v "_backg" | sed 's/": *{//g; s/"//g')
+      declare -A bg_runs_map
+      for bg_file in $bg_files; do
+        local bg_file_section=$(echo "$bg_section" | sed -n "/\"$bg_file\": *{/,/^    }/p")
+        local nested_sections=$(echo "$bg_file_section" | grep -o '"[^"]*": *{' | sed 's/": *{//g; s/"//g')
+        for nested_obj in $nested_sections; do
+          [[ "$nested_obj" == "$bg_file" ]] && continue # Skip the background file itself
+          local nested_section=$(echo "$bg_file_section" | sed -n "/\"$nested_obj\": *{/,/^      }/p")
+          if echo "$nested_section" | grep -q '"_run": *{'; then
+            local run_section=$(echo "$nested_section" | sed -n '/"_run": *{/,/^        }/p')
+            local runs=$(echo "$run_section" | grep -o '"[0-9]\+": *{' | sed 's/": *{//g; s/"//g' | sort -n)
+            if [[ -n "$runs" ]]; then
+              [[ -z "${bg_runs_map[$bg_file]}" ]] && bg_runs_map[$bg_file]=""
+              for run in $runs; do
+                bg_runs_map[$bg_file]="${bg_runs_map[$bg_file]} $run"
+              done
+            fi
+          fi
+        done
+      done
+      for bg_file in "${!bg_runs_map[@]}"; do # Now format the background references
+        local sorted_runs=$(echo "${bg_runs_map[$bg_file]}" | tr ' ' '\n' | sort -n | uniq | tr '\n' ' ')
+        [[ -z "$sorted_runs" ]] && continue # Skip if no runs
+        # Format runs with ranges
+        local formatted_runs=""
+        local prev_run=""
+        local range_start=""
+        local in_range=false
+        for run in $sorted_runs; do
+          [[ -z "$run" ]] && continue # Skip empty runs
+          if [[ -z "$prev_run" ]]; then
+            range_start="$run"
+            prev_run="$run"
+          elif [[ $((run - prev_run)) -eq 1 ]]; then
+            in_range=true
+            prev_run="$run"
+          else
+            # Non-adjacent run - end previous range if any
+            if $in_range; then
+              if [[ $((prev_run - range_start)) -ge 2 ]]; then
+                # Range of at least 3 numbers
+                formatted_runs="${formatted_runs:+$formatted_runs,}${range_start}-${prev_run}"
+              else
+                # Just two numbers, list them individually
+                formatted_runs="${formatted_runs:+$formatted_runs,}${range_start},${prev_run}"
+              fi
+            else
+              # Single number
+              formatted_runs="${formatted_runs:+$formatted_runs,}${range_start}"
+            fi
+            # Start new potential range
+            range_start="$run"
+            prev_run="$run"
+            in_range=false
+          fi
+        done
+        # Handle the last run or range
+        if $in_range; then
+          if [[ $((prev_run - range_start)) -ge 2 ]]; then
+            # Range of at least 3 numbers
+            formatted_runs="${formatted_runs:+$formatted_runs,}${range_start}-${prev_run}"
+          else
+            # Just two numbers, list them individually
+            formatted_runs="${formatted_runs:+$formatted_runs,}${range_start},${prev_run}"
+          fi
+        else
+          # Single number
+          formatted_runs="${formatted_runs:+$formatted_runs,}${range_start}"
+        fi
+        bg_refs="${bg_refs:+$bg_refs|}${bg_file}:${formatted_runs}"
+      done
+    fi
+    echo "$bg_refs"
+  }
+  local chart_run_section=""
+  local start_line=$(grep -n '"_run": *{' "$json_file" | head -1 | cut -d: -f1)
+  if [[ -z "$start_line" ]]; then
+    echo "$0: Error: Could not find _run section in JSON."
+    exit 1
+  fi
+  local brace_count=0
+  local in_run_section=false
+  local line_num=0
+  while IFS= read -r line; do
+    ((line_num++))
+    if [[ $line_num -eq $start_line ]]; then
+      in_run_section=true
+      chart_run_section+="$line"$'\n'
+      # Count opening braces
+      brace_count=$((brace_count + $(echo "$line" | grep -o '{' | wc -l)))
+      # Count closing braces
+      brace_count=$((brace_count - $(echo "$line" | grep -o '}' | wc -l)))
+    elif [[ $in_run_section = true ]]; then
+      chart_run_section+="$line"$'\n'
+      # Count opening braces
+      brace_count=$((brace_count + $(echo "$line" | grep -o '{' | wc -l)))
+      # Count closing braces
+      brace_count=$((brace_count - $(echo "$line" | grep -o '}' | wc -l)))
+      # If we're back to brace level 0, we've found the end of the run section
+      if [[ $brace_count -eq 0 ]]; then
+        break
+      fi
+    fi
+  done < "$json_file"
+  # Extract all run numbers from the chart run section
+  local run_keys=$(echo "$chart_run_section" | grep -o '"[0-9]\+": *{' | sed 's/": *{//g; s/"//g' | sort -n)
+  if [[ -z "$run_keys" ]]; then
+    fields="-"
+  else
+    local first_run=$(echo "$run_keys" | head -1)
+    local first_run_block=""
+    local capture=false
+    # Extract the first run block using pattern matching
+    while IFS= read -r line; do
+      if [[ "$line" =~ \"$first_run\":\ *\{ ]]; then
+        capture=true
+        first_run_block+="$line"$'\n'
+      elif [[ $capture = true ]]; then
+        first_run_block+="$line"$'\n'
+        if [[ "$line" =~ \}, ]]; then
+          break
+        fi
+      fi
+    done < <(echo "$chart_run_section")
+    # Extract field names from the first run block
+    while IFS= read -r line; do
+      if [[ "$line" =~ \"([a-zA-Z][^\"]*)\": ]]; then
+        local field="${BASH_REMATCH[1]}"
+        if [[ "$field" != "_run" && "$field" != "_set" && "$field" != "_key" ]]; then
+          fields="${fields:+$fields|}$field"
+        fi
+      fi
+    done < <(echo "$first_run_block")
+  fi
+  local bg_refs=""
+  if [[ -f "$out_file" ]]; then # Original FPS file exists
+    cp "$out_file" "${out_file}_jtmp"
+    local orig_header=$(head -1 "$out_file")
+    local orig_fields=$(echo "$orig_header" | awk -F'[|][|]' '{print $1}')
+    local orig_key=$(echo "$orig_header" | awk -F'[|][|]' '{print $2}')
+    local orig_bg=$(echo "$orig_header" | awk -F'[|][|]' '{print $3}')
+    # If fields and key match, reuse the original background references
+    if [[ "$fields" == "$orig_fields" && "$key_name" == "$orig_key" ]]; then
+      bg_refs="$orig_bg"
+      echo "$0: Reusing background references from original FPS file."
+    else
+      bg_refs=$(extract_backgrounds_from_json "$json_file")
+    fi
+  else
+    bg_refs=$(extract_backgrounds_from_json "$json_file")
+  fi
+  echo "${fields}||${key_name}||${bg_refs}" > "$out_file"
+  IFS='|' read -ra field_names <<< "$fields"
+  local max_run=$(echo "$run_keys" | sort -n | tail -1)
+  for run_num in $(seq 1 $max_run); do
+    if echo "$run_keys" | grep -q "^$run_num$"; then
+      local run_block=""
+      local capture=false
+      while IFS= read -r line; do
+        if [[ "$line" =~ \"$run_num\":\ *\{ ]]; then
+          capture=true
+          run_block+="$line"$'\n'
+        elif [[ $capture = true ]]; then
+          run_block+="$line"$'\n'
+          if [[ "$line" =~ \}, ]]; then
+            break
+          fi
+        fi
+      done < <(echo "$chart_run_section")
+      local line_values=""
+      for field in "${field_names[@]}"; do
+        local value=""
+        # Match string values with content between quotes - preserving escaped quotes
+        if grep -q "\"$field\": *\"" <(echo "$run_block"); then
+          # Extract everything between the quotes, handling escaped quotes properly
+          local quoted_section=$(echo "$run_block" | grep "\"$field\": *\"")
+          # Extract what's inside the quotes, preserving escaped quotes
+          if [[ "$quoted_section" =~ \"$field\":\ *\"(([^\"]|\\\")*[^\\])\" ]]; then
+            value="${BASH_REMATCH[1]}"
+            # Preserve escaped quotes in the output
+            value="${value//\\\"/\"}"
+          fi
+        # Match array values - both string and numeric arrays
+        elif grep -q "\"$field\": *\[" <(echo "$run_block"); then
+          local array_line=$(echo "$run_block" | grep "\"$field\": *\[")
+          # Check if the entire array is on one line
+          if [[ "$array_line" =~ \"$field\":\ *\[(.*)\] ]]; then
+            # Single line array
+            value="{${BASH_REMATCH[1]}}"
+          else
+            # Multi-line array - extract all lines until closing bracket
+            local array_content=""
+            local array_started=false
+            local array_ended=false
+            while IFS= read -r line; do
+              if [[ "$line" =~ \"$field\":\ *\[ ]]; then
+                array_started=true
+                # Extract any content after the opening bracket
+                if [[ "$line" =~ \"$field\":\ *\[(.*) ]]; then
+                  array_content+="${BASH_REMATCH[1]}"
+                fi
+              elif [[ "$array_started" = true && "$array_ended" = false ]]; then
+                if [[ "$line" =~ .*\] ]]; then
+                  # Found the closing bracket
+                  array_ended=true
+                  # Extract content before the closing bracket
+                  if [[ "$line" =~ (.*)\] ]]; then
+                    array_content+="${BASH_REMATCH[1]}"
+                  fi
+                else
+                  # Middle of array - add the whole line
+                  array_content+="$line"
+                fi
+              fi
+              # Stop if we've found the entire array
+              [[ "$array_ended" = true ]] && break
+            done < <(echo "$run_block")
+            # Clean up the array content
+            array_content=$(echo "$array_content" | sed 's/^[[:space:]]*//g; s/[[:space:]]*$//g')
+            value="{$array_content}" # Format the value
+          fi
+          # Remove unnecessary quotes around string values in arrays
+          value=$(echo "$value" | sed 's/"//g')
+        # Match numeric values
+        elif grep -q "\"$field\": *[0-9]" <(echo "$run_block"); then
+          value=$(echo "$run_block" | grep "\"$field\": *[0-9]" | sed 's/.*": *\([0-9][0-9]*\).*/\1/')
+        # Match dashes and other special values
+        elif grep -q "\"$field\": *-" <(echo "$run_block"); then
+          value="-"
+        fi
+        value="${value//|/\\|}" # Escape pipe characters
+        line_values="${line_values}${value}|"
+      done
+      line_values="${line_values%|}"
+      echo "$line_values" >> "$out_file"
+    else
+      if [[ -f "${out_file}_jtmp" ]]; then
+        local orig_line=$(tail -n +$((run_num + 1)) "${out_file}_jtmp" | head -n 1)
+        if [[ -n "$orig_line" ]]; then
+          echo "$orig_line" >> "$out_file"
+        else
+          echo "" >> "$out_file" # Add empty line
+        fi
+      else
+        echo "" >> "$out_file" # Add empty line for missing runs if no original file
+      fi
+    fi
+  done
+  [[ -f "${out_file}_jtmp" ]] && rm "${out_file}_jtmp"
+  echo "$0: Updated '$out_file' from '$json_file'"
+}
+
 fps_flat() {
   local json_file="$1"
   if [[ ! -f "$json_file" || "$json_file" != *.json ]]; then
@@ -1753,9 +2032,10 @@ if [[ $# -lt 1 ]]; then
   echo "$0 keys x.fps                           # list keys"
   echo "$0 draw x.fps                           # draw align -> @.fps"
   echo "$0 norm x.fps                           # normalize -> prere.fps"
-  echo "$0 stat x.fps Key                       # show stat of a key -> @.stat"
   echo "$0 json x.fps                           # convert fps to json -> .json"
+  echo "$0 jfps x.json                          # convert json back to -> .fps"
   echo "$0 flat x.json                          # convert json to fps -> _.fps"
+  echo "$0 stat x.fps Key                       # show stat of a key -> @.stat"
   echo "$0 find x.fps Word                      # search for a word in prere/chart"
   echo "$0 sift x.fps Condition                 # sift with condition -> #hash.fps"
   echo "$0 sort x.fps Key 1/+ or 2/-            # sort key ascend/descend -> @.fps"
@@ -1784,6 +2064,27 @@ case "$1" in
     [[ $# -ne 2 ]] && { echo "$0: '$1' requires = 2 args"; exit 1; }
     fps_norm "$2"
     ;;
+  "json")
+    [[ $# -lt 2 ]] && { echo "$0: '$1' requires at least 1 input file"; exit 1; }
+    shift 1
+    for file_arg in "$@"; do
+      fps_json "$file_arg"
+    done
+    ;;
+  "jfps")
+    [[ $# -lt 2 ]] && { echo "$0: '$1' requires at least 1 input file"; exit 1; }
+    shift 1
+    for file_arg in "$@"; do
+      fps_jfps "$file_arg"
+    done
+    ;;
+  "flat")
+    [[ $# -lt 2 ]] && { echo "$0: '$1' requires at least 1 input file"; exit 1; }
+    shift 1
+    for file_arg in "$@"; do
+      fps_flat "$file_arg"
+    done
+    ;;
   "stat")
     [[ $# -ne 3 ]] && { echo "$0: '$1' requires = 3 args"; exit 1; }
     fps_stat "$2" "$3"
@@ -1806,20 +2107,6 @@ case "$1" in
     shift 2
     fps_merge_set "$merge_out" "$@"
     ;;
-  "json")
-    [[ $# -lt 2 ]] && { echo "$0: '$1' requires at least 1 input file"; exit 1; }
-    shift 1
-    for file_arg in "$@"; do
-      fps_json "$file_arg"
-    done
-    ;;
-  "flat")
-    [[ $# -lt 2 ]] && { echo "$0: '$1' requires at least 1 input file"; exit 1; }
-    shift 1
-    for file_arg in "$@"; do
-      fps_flat "$file_arg"
-    done
-    ;;
   *) # run $1 a ELF or .sh or .py script
     [[ $# -lt 2 ]] && { echo "$0: run requires >= 2 args for ELF/.sh/.py x.fps[:0=pll|:N=run] ..."; exit 1; }
     # Usage information for run modes:
@@ -1831,16 +2118,33 @@ case "$1" in
     # 6. Condition-based: script.sh file.fps:"version == '1.0' && tier > 2" - Run rows matching the condition sequentially
     # 7. Parallel condition: script.sh file.fps:0,"version == '1.0'"        - Run matching rows in parallel, wait for all
     # 8. Parallel mix condition: script.sh file.fps:-,"version == '1.0'"    - Run matching rows in parallel, continue without waiting
+    # 9. Script with arguments: script.sh:"arg1 \"arg2\" arg3" file.fps     - Pass arguments to the script
+    local_script="$1"
+    local_script_args=""
+    if [[ "$local_script" == *:* ]]; then
+      local_script_args="${local_script#*:}"
+      local_script="${local_script%%:*}"
+      # Remove surrounding quotes if present
+      if [[ "$local_script_args" =~ ^\".*\"$ && ${#local_script_args} -gt 2 ]]; then
+        local_script_args="${local_script_args#\"}"
+        local_script_args="${local_script_args%\"}"
+      fi
+      local_script_args="${local_script_args//\\\"/\"}" # Remove escaped quotes
+    fi
+    if [[ -n "$local_script_args" ]]; then
+      FPS_RUN_ARGS="$local_script_args"
+    else
+      FPS_RUN_ARGS=""
+    fi
     fin0=0
     exe0=0
-    if [[ -x "$1" ]] && file "$1" | grep -q "ELF"; then
+    if [[ -x "$local_script" ]] && file "$local_script" | grep -q "ELF"; then
       exe0=1
     fi
     if [[ $exe0 -eq 1
-      || "$1" == *.sh
-      || "$1" == *.py
+      || "$local_script" == *.sh
+      || "$local_script" == *.py
     ]]; then
-      local_script="$1"
       shift 1
       expand_range() { # "11-14" -> (11 12 13 14)
         term="$1"
@@ -1938,6 +2242,7 @@ case "$1" in
       echo "$0: Unrecognized command or script '$1'."
       exit 1
     fi
+    unset FPS_RUN_ARGS
     [[ $fin0 -eq 1 ]] && wait
     exit 0
     ;;
