@@ -977,6 +977,17 @@ fps_run_script() {
 }
 
 fps_json() {
+  json_escape() {
+    local str="$1"
+    str="${str//\\/\\\\}" # Escape backslashes first
+    str="${str//\"/\\\"}" # Escape quotes
+    str="${str//$'\n'/\\n}" # Escape newlines
+    str="${str//$'\r'/\\r}" # Escape carriage returns
+    str="${str//$'\t'/\\t}" # Escape tabs
+    str="${str//$'\b'/\\b}" # Escape backspace
+    str="${str//$'\f'/\\f}" # Escape form feed
+    echo "$str"
+  }
   local file="$1"
   if [[ ! -f "$file" ]]; then
     echo "$0: '$file' not found."
@@ -991,12 +1002,15 @@ fps_json() {
   local nps0=${#ps0[@]}
   local key_file="${file%.fps}"
   local out_file="${key_file}.json"
+  # Escape values for JSON
+  local key_file_escaped=$(json_escape "$key_file")
+  local c0_escaped=$(json_escape "$c0")
   # Start building the JSON
   local json="{\n"
   # Add _chart section
   json+="  \"_chart\": {\n"
-  json+="    \"_set\": \"$key_file\",\n"
-  json+="    \"_key\": \"$c0\",\n"
+  json+="    \"_set\": \"$key_file_escaped\",\n"
+  json+="    \"_key\": \"$c0_escaped\",\n"
   # Process each run (line) in the main file
   local run_num=0
   local run_count=0
@@ -1039,9 +1053,9 @@ fps_json() {
             if is_numeric "$element"; then
               runs_json+="$element"
             else
-              # Escape quotes in string values
-              element="${element//\"/\\\"}"
-              runs_json+="\"$element\""
+              # Escape special characters in string values
+              local element_escaped=$(json_escape "$element")
+              runs_json+="\"$element_escaped\""
             fi
           done
           # Close JSON array
@@ -1055,14 +1069,14 @@ fps_json() {
           fi
           runs_json+="        \"$key\": $value"
         else
-          # Escape quotes in string values
-          value="${value//\"/\\\"}"
+          # Escape special characters in string values
+          local value_escaped=$(json_escape "$value")
           if ! $first_field; then
             runs_json+=",\n"
           else
             first_field=false
           fi
-          runs_json+="        \"$key\": \"$value\""
+          runs_json+="        \"$key\": \"$value_escaped\""
         fi
       done
       # Close the run
@@ -1302,9 +1316,9 @@ fps_json() {
                 if is_numeric "$element"; then
                   run_json+="$element"
                 else
-                  # Escape quotes in string values
-                  element="${element//\"/\\\"}"
-                  run_json+="\"$element\""
+                  # Escape special characters in string values
+                  local element_escaped=$(json_escape "$element")
+                  run_json+="\"$element_escaped\""
                 fi
               done
               # Close JSON array
@@ -1316,12 +1330,12 @@ fps_json() {
               fi
               run_json+="            \"$key\": $value"
             else
-              # Escape quotes in string values
-              value="${value//\"/\\\"}"
+              # Escape special characters in string values
+              local value_escaped=$(json_escape "$value")
               if [[ -n "$run_json" ]]; then
                 run_json+=",\n"
               fi
-              run_json+="            \"$key\": \"$value\""
+              run_json+="            \"$key\": \"$value_escaped\""
             fi
           done
         fi
@@ -1413,7 +1427,9 @@ fps_json() {
       else
         first_file=false
       fi
-      json+="\n    \"$bfile\": {"
+      # Escape file name for JSON
+      local bfileEscaped=$(json_escape "$bfile")
+      json+="\n    \"$bfileEscaped\": {"
       local first_chart=true
       # Iterate through charts for this file
       for chart_key in "${!backg_charts[@]}"; do
@@ -1426,7 +1442,9 @@ fps_json() {
           else
             first_chart=false
           fi
-          json+="\n      \"$chart_part\": {"
+          # Escape chart name for JSON
+          local chart_part_escaped=$(json_escape "$chart_part")
+          json+="\n      \"$chart_part_escaped\": {"
           json+="\n        \"_run\": {"
           local first_run=true
           # Find all runs for this file and chart
@@ -1457,6 +1475,7 @@ fps_json() {
   # Close the JSON
   json+="\n}"
   # Write the JSON to file with proper formatting
+  json="${json//\\\\/\\\\\\\\}"
   echo -e "$json" > "$out_file"
   echo "$0: Converted '$file' to '$out_file'"
 }
@@ -1659,8 +1678,14 @@ fps_jfps() {
           # Extract what's inside the quotes, preserving escaped quotes
           if [[ "$quoted_section" =~ \"$field\":\ *\"(([^\"]|\\\")*[^\\])\" ]]; then
             value="${BASH_REMATCH[1]}"
-            # Preserve escaped quotes in the output
-            value="${value//\\\"/\"}"
+            # Unescape all JSON escaped characters
+            value="${value//\\\\/\\}" # Unescape backslashes first
+            value="${value//\\\"/\"}" # Unescape quotes
+            value="${value//\\n/$'\n'}" # Unescape newlines
+            value="${value//\\r/$'\r'}" # Unescape carriage returns
+            value="${value//\\t/$'\t'}" # Unescape tabs
+            value="${value//\\b/$'\b'}" # Unescape backspace
+            value="${value//\\f/$'\f'}" # Unescape form feed
           fi
         # Match array values - both string and numeric arrays
         elif grep -q "\"$field\": *\[" <(echo "$run_block"); then
